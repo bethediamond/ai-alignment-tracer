@@ -452,9 +452,9 @@ table.inv-table tr:last-child td{border-bottom:none}
 <div class="substrate-row">
   <span class="substrate-label">Resolution class</span>
   <div style="display:flex;gap:5px;align-items:center;flex:1">
-    <div id="pseg-p" style="padding:2px 10px;border-radius:2px;border:1px solid var(--valid);color:var(--valid);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">resolved</div>
-    <div id="pseg-f" style="padding:2px 10px;border-radius:2px;border:1px solid var(--weakcol);color:var(--weakcol);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">fragile</div>
-    <div id="pseg-n" style="padding:2px 10px;border-radius:2px;border:1px solid var(--bad);color:var(--bad);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">non-terminating</div>
+    <div id="pseg-p" style="padding:2px 10px;border-radius:2px;border:1px solid var(--valid);color:var(--valid);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">resolved</div>
+    <div id="pseg-f" style="padding:2px 10px;border-radius:2px;border:1px solid var(--weakcol);color:var(--weakcol);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">fragile</div>
+    <div id="pseg-n" style="padding:2px 10px;border-radius:2px;border:1px solid var(--bad);color:var(--bad);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">non-terminating</div>
   </div>
   <span class="substrate-warn" id="substrateWarn">● non-persistent</span>
   <div id="substrateFill" style="display:none"></div>
@@ -1870,11 +1870,11 @@ function setSubstrateDisplay(pct){
   const pn=document.getElementById('pseg-n');
   const warn=document.getElementById('substrateWarn');
   if(ps&&pf&&pn){
-    // Reset all to dim
-    [ps,pf,pn].forEach(el=>el.style.opacity='0.2');
-    if(pct>65){ps.style.opacity='1';ps.style.background='rgba(64,192,128,0.10)';}
-    else if(pct>35){pf.style.opacity='1';pf.style.background='rgba(232,160,48,0.10)';}
-    else{pn.style.opacity='1';pn.style.background='rgba(224,88,80,0.10)';}
+    // Reset all to dim (but readable)
+    [ps,pf,pn].forEach(el=>{ el.style.opacity='0.60'; el.style.background='transparent'; });
+    if(pct>65){ps.style.opacity='1';ps.style.background='rgba(80,208,144,0.14)';}
+    else if(pct>35){pf.style.opacity='1';pf.style.background='rgba(255,184,64,0.14)';}
+    else{pn.style.opacity='1';pn.style.background='rgba(240,104,96,0.14)';}
   }
   if(warn)warn.classList.toggle('on',pct<=35&&pct>0);
   if(pct<=10)setTimeout(()=>document.body.classList.add('decayed'),500);
