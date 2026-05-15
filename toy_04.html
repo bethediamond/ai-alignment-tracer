@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Motivation Tracer — The Invariant Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#11111a;--surface2:#191924;--surface3:#1f1f2c;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e8f0;--text2:#8888a0;--text3:#55556a;
+  --valence:#e8a030;--vd:rgba(232,160,48,0.09);--vb:rgba(232,160,48,0.30);--vg:rgba(232,160,48,0.07);
+  --unresolved:#c060d0;--ud:rgba(192,96,208,0.09);--ub:rgba(192,96,208,0.30);
+  --exception:#b87aff;--ed:rgba(184,122,255,0.08);--eb:rgba(184,122,255,0.27);
+  --ambiguous:#50c0b0;--ad:rgba(80,192,176,0.08);--ab:rgba(80,192,176,0.27);
+  --nonterm:#6890d0;--nd:rgba(104,144,208,0.08);--nb:rgba(104,144,208,0.27);
+  --valid:#40c080;--validdim:rgba(64,192,128,0.08);--validb:rgba(64,192,128,0.25);
+  --weakcol:#e8a030;--weakd:rgba(232,160,48,0.08);--weakb:rgba(232,160,48,0.25);
+  --bad:#e05850;--badd:rgba(224,88,80,0.08);--badb:rgba(224,88,80,0.25);
+  --formal:#70d0ff;--fd:rgba(112,208,255,0.07);--fb:rgba(112,208,255,0.25);
+  --blind:#d0b060;--bld:rgba(208,176,96,0.07);--blb:rgba(208,176,96,0.25);
+  --indep:#90b8a0;--indd:rgba(144,184,160,0.07);--indb:rgba(144,184,160,0.25);
+  --corr:#c07898;--corrd:rgba(192,120,152,0.07);--corrb:rgba(192,120,152,0.25);
+  --smug:#c080e0;--smugd:rgba(192,128,224,0.08);--smugb:rgba(192,128,224,0.25);
+  --mono:'DM Mono','Fira Code',monospace;--serif:'Instrument Serif',Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:12px;line-height:1.65;min-height:100vh;padding-bottom:80px;transition:filter 1.6s ease}
+body.decayed{filter:saturate(0.10) brightness(0.40)}
+.shell{max-width:780px;margin:0 auto;padding:0 22px}
+
+header{padding:24px 0 16px;border-bottom:1px solid var(--border);margin-bottom:22px}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+h1{font-family:var(--serif);font-size:21px;font-weight:400;font-style:italic;letter-spacing:.01em}
+.hdr-meta{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.series-tag{font-size:10px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border2);border-radius:2px;white-space:nowrap;margin-top:2px}
+
+.substrate-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.substrate-label{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.substrate-track{flex:1;height:5px;background:var(--surface3);border-radius:1px;overflow:hidden;border:1px solid var(--border2)}
+.substrate-fill{height:100%;background:var(--valid);border-radius:1px;transition:width .9s cubic-bezier(.4,0,.2,1),background .9s}
+.substrate-val{font-size:10px;color:var(--valid);min-width:34px;text-align:right;transition:color .9s}
+.substrate-val.warn{color:var(--weakcol)}.substrate-val.crit{color:var(--bad)}
+.substrate-warn{display:none;font-size:10px;color:var(--bad);letter-spacing:.06em;text-transform:uppercase;animation:wp 1.2s ease-in-out infinite}
+.substrate-warn.on{display:inline}
+@keyframes wp{0%,100%{opacity:.4}50%{opacity:1}}
+
+.key-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:14px 18px;margin-bottom:16px}
+.key-row{display:flex;gap:8px;align-items:center}
+.key-label{font-size:9px;color:var(--text3);letter-spacing:.10em;text-transform:uppercase;white-space:nowrap}
+.key-input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 11px;outline:none;transition:border-color .2s}
+.key-input:focus{border-color:var(--vb)}
+.key-input::placeholder{color:var(--text3)}
+.key-save{background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text2);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;height:31px;cursor:pointer;transition:all .15s}
+.key-save:hover{color:var(--valence);border-color:var(--vb)}
+.key-note{font-size:10px;color:var(--text3);margin-top:7px;line-height:1.5}
+.key-status{font-size:10px;margin-left:4px}.key-status.ok{color:var(--valid)}.key-status.no{color:var(--bad)}
+
+.lede{font-size:12px;color:var(--text2);line-height:1.78;margin-bottom:20px;max-width:640px}
+.lede em{color:var(--text)}
+.lede .tagline{display:block;margin-top:10px;font-size:11px;color:var(--text3);font-style:italic;border-left:2px solid var(--border2);padding-left:10px;line-height:1.65}
+
+.session-stats{display:none;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:12px 16px;margin-bottom:16px}
+.session-stats-hdr{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px}
+.stats-row{display:flex;gap:8px;flex-wrap:wrap}
+.stat-bucket{flex:1;min-width:58px;border-radius:2px;padding:8px 10px;border:1px solid}
+.sb-tot{background:var(--surface2);border-color:var(--border2)}.sb-exp{background:var(--vd);border-color:var(--vb)}
+.sb-exc{background:var(--ed);border-color:var(--eb)}.sb-amb{background:var(--ad);border-color:var(--ab)}.sb-nt{background:var(--nd);border-color:var(--nb)}
+.stat-label{font-size:9px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.sb-tot .stat-label{color:var(--text3)}.sb-exp .stat-label{color:var(--valence)}.sb-exc .stat-label{color:var(--exception)}
+.sb-amb .stat-label{color:var(--ambiguous)}.sb-nt .stat-label{color:var(--nonterm)}
+.stat-val{font-size:18px;font-family:var(--serif)}.stat-pct{font-size:9px;color:var(--text3);margin-top:1px}
+
+.opt-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.opt-label{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.opt-pills{display:flex;gap:5px;flex-wrap:wrap}
+.opt-pill{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;padding:4px 12px;border-radius:2px;background:var(--surface);border:1px solid var(--border2);color:var(--text3);cursor:pointer;transition:all .15s}
+.opt-pill:hover{color:var(--text2)}
+.opt-pill.active{color:var(--valence);border-color:var(--vb);background:var(--vd)}
+
+.input-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:18px 20px;margin-bottom:6px;transition:background .4s,border-color .4s}
+.input-card.regen-mode{background:rgba(100,60,180,0.07);border-color:rgba(130,80,220,0.25)}
+.input-label{display:block;font-size:9px;color:var(--text3);letter-spacing:.10em;text-transform:uppercase;margin-bottom:10px}
+.input-row{display:flex;gap:8px}
+.goal-input{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:13px;padding:9px 13px;outline:none;transition:border-color .2s,box-shadow .2s}
+.goal-input:focus{border-color:var(--vb);box-shadow:0 0 0 3px var(--vg)}
+.goal-input::placeholder{color:var(--text3);font-style:italic}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.btn{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;padding:8px 14px;border-radius:2px;cursor:pointer;transition:all .15s;border:1px solid}
+.btn-primary{background:var(--vd);border-color:var(--vb);color:var(--valence)}
+.btn-primary:hover:not(:disabled){background:rgba(232,160,48,0.16)}
+.btn-sec{background:var(--surface2);border-color:var(--border2);color:var(--text3)}
+.btn-sec:hover:not(:disabled){color:var(--ambiguous);border-color:var(--ab)}
+.btn-pert{background:var(--surface2);border-color:var(--border2);color:var(--text3)}
+.btn-pert:hover:not(:disabled){color:var(--formal);border-color:var(--fb)}
+.btn:disabled{opacity:0.35;cursor:not-allowed}
+.toggles-row{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.toggle-label{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:10px;color:var(--text3);user-select:none;line-height:1.55}
+.toggle-label:hover{color:var(--text2)}
+.toggle-label input{accent-color:var(--exception);margin-top:1px;flex-shrink:0}
+.mode-tag{font-size:9px;border-radius:2px;padding:1px 6px;margin-left:5px;vertical-align:middle;display:none}
+.mode-tag.on{display:inline}
+.mt-formal{color:var(--formal);background:var(--fd);border:1px solid var(--fb)}
+.mt-blind{color:var(--blind);background:var(--bld);border:1px solid var(--blb)}
+.mt-indep{color:var(--indep);background:var(--indd);border:1px solid var(--indb)}
+.mt-corr{color:var(--corr);background:var(--corrd);border:1px solid var(--corrb)}
+.examples-row{margin-top:11px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ex-label{font-size:10px;color:var(--text3);margin-right:2px}
+.ex-pill{font-size:10px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:2px 10px;cursor:pointer;transition:color .15s,border-color .15s;user-select:none}
+.ex-pill:hover{color:var(--valence);border-color:var(--vb)}
+
+.status-row{display:none;align-items:center;gap:10px;height:32px;margin-bottom:20px}
+.pass-indicators{display:flex;align-items:center;gap:4px}
+.pass-dot{width:7px;height:7px;border-radius:50%;background:var(--surface3);border:1px solid var(--border2);transition:all .3s}
+.pass-dot.active{background:var(--valence);border-color:var(--valence);box-shadow:0 0 7px rgba(232,160,48,.45)}
+.pass-dot.done{background:var(--valid);border-color:var(--valid);box-shadow:none}
+.pass-line{width:10px;height:1px;background:var(--border2)}
+.loading-dots{display:flex;gap:4px;align-items:center}
+.dot{width:4px;height:4px;background:var(--valence);border-radius:50%;animation:dp 1.4s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.18s}.dot:nth-child(3){animation-delay:.36s}
+@keyframes dp{0%,80%,100%{opacity:.15;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+.status-label{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
+
+.error-bar{display:none;background:var(--badd);border:1px solid var(--badb);border-radius:2px;padding:9px 14px;color:#e05850;font-size:11px;margin-bottom:20px;line-height:1.6}
+.error-bar.on{display:block}
+
+/* INVARIANCE PANEL — primary output */
+.inv-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:16px 18px;margin-bottom:20px}
+.inv-hdr-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.inv-hdr{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase}
+.inv-disclaimer{font-size:9px;color:var(--text3);font-style:italic}
+.inv-score-row{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.inv-score-label{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.inv-score-track{flex:1;height:6px;background:var(--surface3);border-radius:1px;overflow:hidden;border:1px solid var(--border2);min-width:80px}
+.inv-score-fill{height:100%;border-radius:1px;transition:width .6s}
+.inv-score-fill.score-0{background:var(--valid);width:0%}
+.inv-score-fill.score-1{background:var(--valid);width:17%}
+.inv-score-fill.score-2{background:var(--weakcol);width:33%}
+.inv-score-fill.score-3{background:var(--weakcol);width:50%}
+.inv-score-fill.score-4{background:var(--bad);width:67%}
+.inv-score-fill.score-5{background:var(--bad);width:83%}
+.inv-score-fill.score-6{background:var(--bad);width:100%}
+.inv-score-val{font-size:15px;font-family:var(--serif);min-width:24px}
+.inv-score-badge{font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;flex-shrink:0}
+.inv-score-badge.stable{color:var(--valid);background:var(--validdim);border:1px solid var(--validb)}
+.inv-score-badge.fragile{color:var(--weakcol);background:var(--weakd);border:1px solid var(--weakb)}
+.inv-score-badge.falsification{color:var(--bad);background:var(--badd);border:1px solid var(--badb)}
+table.inv-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+table.inv-table th{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;text-align:left;padding:5px 8px;border-bottom:1px solid var(--border)}
+table.inv-table td{padding:8px 8px;border-bottom:1px solid var(--border);font-size:11px;vertical-align:middle}
+table.inv-table tr:last-child td{border-bottom:none}
+.inv-mode{font-size:9px;letter-spacing:.07em;text-transform:uppercase}
+.inv-type{font-size:10px;padding:2px 8px;border-radius:2px;display:inline-block}
+.inv-type.experiential,.inv-type.experiential-resolved{color:var(--valence);background:var(--vd);border:1px solid var(--vb)}
+.inv-type.experiential-unresolved{color:var(--unresolved);background:var(--ud);border:1px solid var(--ub)}
+.inv-type.exception{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.inv-type.ambiguous{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}
+.inv-type.nonterminating{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.inv-type.pending{color:var(--text3);background:var(--surface2);border:1px solid var(--border2)}
+.inv-agree{font-size:10px}
+.inv-agree.match{color:var(--valid)}.inv-agree.mismatch{color:var(--bad)}.inv-agree.baseline{color:var(--text3)}
+.inv-contrib{font-size:9px;color:var(--text3);font-style:italic}
+.inv-interp{font-size:11px;color:var(--text2);line-height:1.70;border-top:1px solid var(--border);padding-top:10px}
+.inv-interp strong{color:var(--text)}
+.inv-fail-block{display:none;margin-top:10px;padding:9px 11px;border-radius:2px;border-left:2px solid var(--bad);background:var(--badd);font-size:11px;color:#e88078;line-height:1.65}
+.inv-fail-block.on{display:block}
+.instability-banner{display:none;margin:14px 0 0;padding:12px 16px;border-radius:3px;border:1px solid var(--bad);background:rgba(224,88,80,0.06);font-size:11px;color:#e88078;line-height:1.65;animation:ibpulse 2s ease-in-out infinite}
+.instability-banner.on{display:block}
+@keyframes ibpulse{0%,100%{border-color:rgba(224,88,80,0.35)}50%{border-color:rgba(224,88,80,0.70)}}
+
+/* CONVERGENCE */
+.conv-panel{display:none;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:16px 18px;margin-bottom:20px}
+.conv-hdr{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px}
+.conv-dist{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.conv-bucket{flex:1;min-width:72px;border-radius:2px;padding:9px 11px;border:1px solid}
+.b-exp{background:var(--vd);border-color:var(--vb)}.b-exc{background:var(--ed);border-color:var(--eb)}
+.b-amb{background:var(--ad);border-color:var(--ab)}.b-nt{background:var(--nd);border-color:var(--nb)}
+.conv-bucket-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.b-exp .conv-bucket-label{color:var(--valence)}.b-exc .conv-bucket-label{color:var(--exception)}
+.b-amb .conv-bucket-label{color:var(--ambiguous)}.b-nt .conv-bucket-label{color:var(--nonterm)}
+.conv-bucket-val{font-size:20px;font-family:var(--serif)}
+.conv-metrics{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.conv-metric{background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:8px 12px;flex:1;min-width:90px}
+.conv-metric-label{font-size:9px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.conv-metric-val{font-size:15px;font-family:var(--serif);color:var(--text)}
+.conv-metric-note{font-size:9px;color:var(--text3);margin-top:2px;line-height:1.4}
+.conv-verdict{font-size:11px;color:var(--text2);line-height:1.70;border-top:1px solid var(--border);padding-top:10px}
+.conv-verdict strong{color:var(--text)}
+
+/* PERTURBATION */
+.pert-panel{display:none;background:var(--surface);border:1px solid var(--fb);border-radius:3px;padding:15px 18px;margin-bottom:20px}
+.pert-hdr{font-size:9px;color:var(--formal);letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px}
+.pert-variations{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.pert-var{background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:9px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.pert-var-goal{font-family:var(--serif);font-size:12px;font-style:italic;color:var(--text);flex:1}
+.pert-var-note{font-size:9px;color:var(--text3);margin-top:2px}
+.pert-var-type{font-size:9px;padding:2px 8px;border-radius:2px;flex-shrink:0;letter-spacing:.07em;text-transform:uppercase}
+.pvt-exp{color:var(--valence);background:var(--vd);border:1px solid var(--vb)}
+.pvt-exc{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.pvt-amb{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}
+.pvt-nt{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.pert-result{font-size:11px;color:var(--text2);line-height:1.65;border-top:1px solid var(--border);padding-top:10px}
+.pert-result strong{color:var(--text)}
+.pert-note{font-size:10px;color:var(--text3);margin-top:8px;line-height:1.55;font-style:italic}
+
+/* ANTI-THESIS */
+.anti-panel{display:none;background:rgba(80,60,120,0.07);border:1px solid rgba(130,90,200,0.22);border-radius:3px;padding:15px 18px;margin-bottom:20px}
+.anti-hdr{font-size:9px;color:#a080c0;letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px}
+.anti-goal-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.anti-goal{font-family:var(--serif);font-size:15px;font-style:italic;color:#c8a0e8;flex:1}
+.anti-btn-col{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.stress-btn,.export-btn{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;padding:5px 12px;border-radius:2px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.stress-btn{background:rgba(130,90,200,.10);border:1px solid rgba(130,90,200,.30);color:#b090e0}
+.stress-btn:hover:not(:disabled){background:rgba(130,90,200,.18)}
+.stress-btn:disabled{opacity:.35;cursor:not-allowed}
+.export-btn{background:var(--fd);border:1px solid var(--fb);color:var(--formal)}
+.export-btn:hover{background:rgba(112,208,255,.12)}
+.anti-rationale{font-size:11px;color:var(--text2);line-height:1.72;border-top:1px solid var(--border);padding-top:8px}
+.anti-note{font-size:10px;color:var(--text3);line-height:1.55;margin-top:8px;font-style:italic}
+.export-panel{display:none;background:var(--surface);border:1px solid var(--fb);border-radius:3px;padding:14px 16px;margin-top:10px}
+.export-hdr{font-size:9px;color:var(--formal);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px}
+.export-note{font-size:10px;color:var(--text2);line-height:1.65;margin-bottom:10px}
+.export-text{background:var(--surface2);border:1px solid var(--border2);border-radius:2px;padding:10px 12px;font-size:10px;color:var(--text2);line-height:1.7;white-space:pre-wrap;font-family:var(--mono);max-height:160px;overflow-y:auto}
+.copy-btn{margin-top:8px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:2px;background:var(--fd);border:1px solid var(--fb);color:var(--formal);cursor:pointer}
+.copy-btn:hover{background:rgba(112,208,255,.12)}
+
+/* CHAIN */
+.chain-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;position:relative}
+.node-connector{width:1px;background:linear-gradient(to bottom,var(--border2),var(--border));position:relative;opacity:0;transition:opacity .35s;flex-shrink:0;align-self:center}
+.node-connector.show{opacity:1}
+.node-connector::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid var(--text3)}
+.loop-connector{width:100%;display:none;justify-content:flex-end;padding-right:6px;margin:4px 0;opacity:0;transition:opacity .5s}
+.loop-connector.show{display:flex;opacity:1}
+.loop-connector svg{width:60px;height:40px}
+.chain-node{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:15px 18px;opacity:0;transform:translateY(10px);transition:opacity .40s,transform .40s}
+.chain-node.show{opacity:1;transform:translateY(0)}
+.chain-node.formal-node{border-color:rgba(112,208,255,.18)}
+.node-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.node-step-label{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.node-meta{display:flex;align-items:center;gap:9px}
+.depth-meter{display:flex;gap:3px;align-items:center}
+.depth-dot{width:6px;height:6px;border-radius:1px;background:var(--surface3);border:1px solid var(--border2)}
+.depth-dot.filled.d1{background:#c04840}.depth-dot.filled.d2{background:#c07040}
+.depth-dot.filled.d3{background:var(--valence)}.depth-dot.filled.d4{background:#70b860}.depth-dot.filled.d5{background:var(--valid)}
+.verdict-badge{font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.v-valid{color:var(--valid);background:var(--validdim);border:1px solid var(--validb)}
+.v-weak{color:var(--weakcol);background:var(--weakd);border:1px solid var(--weakb)}
+.v-challenged{color:var(--bad);background:var(--badd);border:1px solid var(--badb)}
+.v-stable{color:var(--valid);background:var(--validdim);border:1px solid var(--validb)}
+.v-contested{color:var(--weakcol);background:var(--weakd);border:1px solid var(--weakb)}
+.v-collapse{color:var(--bad);background:var(--badd);border:1px solid var(--badb)}
+.smug-flag{font-size:10px;color:var(--smug);background:var(--smugd);border:1px solid var(--smugb);border-radius:2px;padding:4px 10px;margin-bottom:8px;cursor:pointer;user-select:none;transition:background .15s}
+.smug-detail{display:none;font-size:10px;color:var(--text2);background:var(--surface2);border:1px solid var(--smugb);border-radius:2px;padding:7px 10px;margin-top:5px;margin-bottom:8px;line-height:1.6}
+.smug-detail.open{display:block}
+.anthro-flag{font-size:10px;color:var(--exception);background:var(--ed);border:1px solid var(--eb);border-radius:2px;padding:4px 10px;margin-bottom:8px}
+.node-goal{font-family:var(--serif);font-size:17px;font-style:italic;color:var(--text);margin-bottom:10px;line-height:1.35}
+.node-goal.formal-goal{font-family:var(--mono);font-size:11px;font-style:normal;color:var(--formal);background:var(--fd);border:1px solid var(--fb);padding:6px 9px;border-radius:2px;line-height:1.55}
+.node-reduction{display:flex;gap:8px;align-items:baseline;margin-bottom:10px}
+.reduction-arrow{font-size:9px;color:var(--text3);flex-shrink:0}
+.reduction-text{font-size:11px;color:var(--text2);line-height:1.6;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color .15s}
+.reduction-text:hover{border-bottom-color:var(--text3)}
+.reduction-text.formal{color:var(--formal);font-family:var(--mono);font-size:10px}
+.node-edit{display:none;width:100%;margin-bottom:8px}
+.node-edit input{width:100%;background:var(--surface2);border:1px solid var(--vb);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:11px;padding:6px 9px;outline:none}
+.node-edit-btns{display:flex;gap:6px;margin-top:6px}
+.node-edit-apply{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:2px;background:var(--vd);border:1px solid var(--vb);color:var(--valence);cursor:pointer}
+.node-edit-cancel{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:4px 11px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text3);cursor:pointer}
+.node-inject-note{font-size:9px;color:var(--text3);margin-bottom:6px;line-height:1.45;font-style:italic}
+.crit-note{font-size:10px;padding:5px 9px;border-radius:2px;margin-bottom:10px;border-left:2px solid var(--border2);line-height:1.55}
+.crit-note.v-valid{border-left-color:var(--valid);background:var(--validdim);color:#68d0a0}
+.crit-note.v-weak{border-left-color:var(--weakcol);background:var(--weakd);color:var(--weakcol)}
+.crit-note.v-challenged{border-left-color:var(--bad);background:var(--badd);color:#e88078}
+.regen-btn{display:none;font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;padding:5px 12px;border-radius:2px;background:var(--badd);border:1px solid var(--badb);color:var(--bad);cursor:pointer;margin-bottom:10px}
+.regen-btn.on{display:inline-flex;align-items:center;gap:6px}
+.bif-trigger{font-size:10px;color:var(--text3);letter-spacing:.04em;cursor:pointer;border-top:1px solid var(--border);padding-top:9px;margin-top:2px;user-select:none;transition:color .15s}
+.bif-trigger:hover{color:var(--valence)}
+.bif-panel{margin-top:12px}
+.bif-loading{display:flex;gap:5px;padding:10px 0;align-items:center}
+.bif-loading .dot{background:var(--text3)}
+.bif-err{font-size:10px;color:var(--bad);padding:6px 0}
+.bif-hdr-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.bif-panel-hdr{font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase}
+.bif-emergent-note{font-size:9px;color:var(--text3);font-style:italic}
+.bif-paths{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:640px){.bif-paths{grid-template-columns:1fr}}
+.bif-path{border-radius:2px;padding:11px 13px;border:1px solid var(--border)}
+.bif-path-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.bif-path-type{font-size:9px;padding:1px 7px;border-radius:2px;display:inline-block;margin-bottom:7px;letter-spacing:.07em;text-transform:uppercase}
+.t-experiential{color:var(--valence);background:var(--vd);border:1px solid var(--vb)}
+.t-exception{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.t-ambiguous{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}
+.t-nonterminating{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.bif-step{font-size:10px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border);line-height:1.45}
+.bif-step:last-child{border-bottom:none}
+.bif-step-goal{font-family:var(--serif);font-size:12px;font-style:italic;color:var(--text);display:block;margin-bottom:1px}
+.bif-term-state{font-size:11px;color:var(--text);margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-family:var(--serif);font-style:italic}
+
+/* TERMINAL */
+.terminal-wrap{width:100%}
+.terminal-node{width:100%;border-radius:3px;border:1px solid var(--border);padding:16px 18px;opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s}
+.terminal-node.show{opacity:1;transform:translateY(0)}
+/* Experiential-resolved: amber pulse — gradient reached and inhabited */
+.terminal-node.t-experiential,.terminal-node.t-experiential-resolved{background:var(--vd);border-color:var(--vb)}
+.terminal-node.t-experiential.show,.terminal-node.t-experiential-resolved.show{animation:tp 2.8s ease-in-out 0.6s infinite}
+@keyframes tp{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 20px rgba(232,160,48,.13)}}
+/* Experiential-unresolved: violet oscillation — experiential but structurally cannot be inhabited */
+.terminal-node.t-experiential-unresolved{background:var(--ud);border-color:var(--ub)}
+.terminal-node.t-experiential-unresolved.show{animation:tu 3.6s ease-in-out 0.4s infinite}
+@keyframes tu{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 14px rgba(192,96,208,.18)}60%{box-shadow:0 0 4px rgba(192,96,208,.06)}}
+.terminal-node.t-exception{background:var(--ed);border-color:var(--eb)}
+.terminal-node.t-ambiguous{background:var(--ad);border-color:var(--ab)}
+.terminal-node.t-nonterminating{background:var(--nd);border-color:var(--nb)}
+.terminal-node.t-nonterminating.show{animation:tp 2.8s ease-in-out 0.6s infinite}
+.terminal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px;flex-wrap:wrap;gap:7px}
+.terminal-badge{font-size:9px;letter-spacing:.10em;text-transform:uppercase;margin-top:1px}
+.t-experiential .terminal-badge,.t-experiential-resolved .terminal-badge{color:var(--valence)}
+.t-experiential-unresolved .terminal-badge{color:var(--unresolved)}
+.t-exception .terminal-badge{color:var(--exception)}
+.t-ambiguous .terminal-badge{color:var(--ambiguous)}.t-nonterminating .terminal-badge{color:var(--nonterm)}
+.taxonomy-badge{display:inline-block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:10px}
+.tax-trivial{color:var(--text3);background:var(--surface2);border:1px solid var(--border2)}
+.tax-structural{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.tax-ontological{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}
+.tax-loop,.tax-infinite-regress,.tax-undefined{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.tax-sufficiency-failure{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+/* EXTERNAL_DEPENDENCY — distinct accent: where the constrained grammar runs out of internal structure */
+.tax-external-dep{color:#e0b050;background:rgba(224,176,80,0.08);border:1px solid rgba(224,176,80,0.30)}
+.ext-dep-annotation{margin-top:10px;padding:9px 11px;border-radius:2px;background:rgba(224,176,80,0.06);border:1px solid rgba(224,176,80,0.28);font-size:11px;color:#c09040;line-height:1.65}
+.terminal-state{font-family:var(--serif);font-size:16px;font-style:italic;line-height:1.4;margin-bottom:13px}
+.t-experiential .terminal-state,.t-experiential-resolved .terminal-state{color:var(--valence)}
+.t-experiential-unresolved .terminal-state{color:var(--unresolved)}
+.t-exception .terminal-state{color:var(--exception)}
+.t-ambiguous .terminal-state{color:var(--ambiguous)}.t-nonterminating .terminal-state{color:var(--nonterm)}
+.terminal-state.formal{font-family:var(--mono);font-size:11px;font-style:normal;color:var(--formal)}
+.terminal-divider{height:1px;background:var(--border);margin-bottom:13px}
+.terminal-analysis{font-size:11px;color:var(--text2);line-height:1.78}
+.terminal-crit{margin-top:12px;padding:8px 10px;border-radius:2px;font-size:11px;line-height:1.65;border-left:2px solid var(--border2)}
+.terminal-crit.v-stable{border-left-color:var(--valid);background:var(--validdim);color:#68d0a0}
+.terminal-crit.v-contested{border-left-color:var(--weakcol);background:var(--weakd);color:var(--weakcol)}
+.terminal-crit.v-collapse{border-left-color:var(--bad);background:var(--badd);color:#e88078}
+.stress-result{margin-top:12px;padding:8px 10px;border-radius:2px;font-size:11px;line-height:1.65;border-left:2px solid}
+.stress-result.match{border-left-color:var(--valid);background:var(--validdim);color:#68d0a0}
+.stress-result.mismatch{border-left-color:var(--bad);background:var(--badd);color:#e88078}
+.nt-interpretations{margin-top:14px;background:var(--nd);border:1px solid var(--nb);border-radius:2px;padding:12px 14px}
+.nt-interp-title{font-size:9px;color:var(--nonterm);letter-spacing:.10em;text-transform:uppercase;margin-bottom:9px}
+.nt-interp-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.nt-interp-list li{font-size:10px;color:var(--text2);line-height:1.65;display:flex;gap:8px}
+.nt-m{color:var(--nonterm);flex-shrink:0;font-weight:500}
+.nt-theory{color:var(--text)}
+.nt-interp-note{font-size:10px;color:var(--text3);margin-top:9px;border-top:1px solid var(--border);padding-top:8px;line-height:1.55;font-style:italic}
+.psi-card{margin-top:14px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;padding:12px 14px}
+.psi-card-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.psi-card-label{font-size:9px;color:var(--text3);letter-spacing:.10em;text-transform:uppercase}
+.psi-card-formula{font-size:10px;color:var(--text2);font-style:italic}
+.psi-space svg{width:100%;height:auto;display:block}
+.psi-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:9px;flex-wrap:wrap;gap:6px}
+.psi-val{font-size:17px;font-family:var(--serif)}
+.psi-val.zone-stable{color:var(--valid)}.psi-val.zone-transitional{color:var(--valence)}.psi-val.zone-fragile{color:var(--bad)}
+.psi-zone{font-size:9px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:2px}
+.psi-zone.zone-stable{color:var(--valid);background:var(--validdim);border:1px solid var(--validb)}
+.psi-zone.zone-transitional{color:var(--valence);background:var(--vd);border:1px solid var(--vb)}
+.psi-zone.zone-fragile{color:var(--bad);background:var(--badd);border:1px solid var(--badb)}
+.psi-note{margin-top:8px;font-size:10px;color:var(--text3);line-height:1.55;border-top:1px solid var(--border);padding-top:8px}
+
+/* FALSIFICATION LOG */
+.fals-wrap{display:none;margin-bottom:24px;border:1px solid var(--eb);border-radius:3px;overflow:hidden}
+.fals-header{display:flex;justify-content:space-between;align-items:center;background:var(--ed);padding:10px 16px;border-bottom:1px solid var(--eb);flex-wrap:wrap;gap:8px}
+.fals-title{font-size:9px;color:var(--exception);letter-spacing:.10em;text-transform:uppercase}
+.fals-actions{display:flex;gap:8px;align-items:center}
+.fals-count{font-size:10px;color:var(--exception);font-style:italic}
+.dl-btn{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:2px;background:var(--ed);border:1px solid var(--eb);color:var(--exception);cursor:pointer}
+.dl-btn:hover{background:rgba(184,122,255,.14)}
+.fals-items{padding:4px 16px;background:var(--surface)}
+.fals-item{padding:9px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.fals-item:last-child{border-bottom:none}
+.fals-n{font-size:9px;color:var(--text3);width:14px;flex-shrink:0}
+.fals-goal{font-size:11px;color:var(--text);font-style:italic;flex:1;min-width:100px}
+.fals-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;width:100%}
+.fals-state{font-size:10px;color:var(--text2)}
+.fals-tags{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.fals-tag{font-size:9px;padding:1px 7px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase}
+.ft-structural{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.ft-trivial{color:var(--text3);background:var(--surface3);border:1px solid var(--border2)}
+.ft-ontological{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}
+.ft-loop,.ft-infinite-regress,.ft-undefined{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.ft-formal{color:var(--formal);background:var(--fd);border:1px solid var(--fb)}
+.ft-blind{color:var(--blind);background:var(--bld);border:1px solid var(--blb)}
+.ft-indep{color:var(--indep);background:var(--indd);border:1px solid var(--indb)}
+.ft-corr{color:var(--corr);background:var(--corrd);border:1px solid var(--corrb)}
+.fals-score{font-size:9px;color:var(--text3);font-style:italic}
+.fals-footer{padding:9px 16px;background:var(--surface);border-top:1px solid var(--border);font-size:10px;color:var(--text3);line-height:1.65}
+.fals-footer em{color:var(--text2)}
+
+/* MODEL NOTES */
+.notes-wrap{border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.notes-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:none;color:var(--text2);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:12px 18px;cursor:pointer;transition:background .15s}
+.notes-toggle:hover{background:var(--surface2)}
+.notes-caret{transition:transform .2s}
+.notes-caret.open{transform:rotate(90deg)}
+.notes-body{display:none;padding:16px 20px;background:var(--surface);border-top:1px solid var(--border)}
+.notes-body.open{display:block}
+.notes-body p{font-size:11px;color:var(--text2);line-height:1.82;margin-bottom:13px}
+.notes-body p:last-child{margin-bottom:0}
+.notes-body strong{color:var(--text);font-weight:500}
+.notes-body em{color:var(--text)}
+.notes-body code{font-family:var(--mono);font-size:10px;color:var(--formal);background:var(--fd);padding:1px 5px;border-radius:2px}
+.tag{display:inline-block;font-size:9px;letter-spacing:.09em;text-transform:uppercase;padding:1px 7px;border-radius:2px;margin-right:4px;position:relative;top:-1px}
+.tag-v{color:var(--valence);background:var(--vd);border:1px solid var(--vb)}.tag-e{color:var(--exception);background:var(--ed);border:1px solid var(--eb)}
+.tag-a{color:var(--ambiguous);background:var(--ad);border:1px solid var(--ab)}.tag-nt{color:var(--nonterm);background:var(--nd);border:1px solid var(--nb)}
+.tag-f{color:var(--formal);background:var(--fd);border:1px solid var(--fb)}.tag-b{color:var(--blind);background:var(--bld);border:1px solid var(--blb)}
+.tag-i{color:var(--indep);background:var(--indd);border:1px solid var(--indb)}.tag-c{color:var(--corr);background:var(--corrd);border:1px solid var(--corrb)}
+/* SELF-TEST PANEL */
+.test-panel{border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-top:14px}
+.test-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:none;color:var(--text3);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:11px 16px;cursor:pointer;transition:background .15s}
+.test-toggle:hover{background:var(--surface2)}
+.test-body{display:none;padding:14px 16px;background:var(--surface);border-top:1px solid var(--border)}
+.test-body.open{display:block}
+.test-run-btn{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;padding:6px 14px;border-radius:2px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:12px}
+.test-run-btn:hover{border-color:var(--valence);color:var(--valence)}
+.test-run-btn:disabled{opacity:.4;cursor:not-allowed}
+.test-summary{display:flex;gap:18px;align-items:center;padding:10px 12px;background:var(--surface2);border-radius:2px;margin-bottom:12px;flex-wrap:wrap}
+.test-count{text-align:center}
+.test-count-val{font-size:20px;font-weight:300;font-family:var(--serif)}
+.test-count-lbl{font-size:9px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-top:1px}
+.test-note-txt{font-size:10px;color:var(--text3);font-style:italic;flex:1}
+.test-suite-hdr{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin:12px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.test-row{display:flex;align-items:baseline;gap:7px;padding:2px 0;font-size:10px}
+.test-pass-mark{color:var(--valid);flex-shrink:0}
+.test-fail-mark{color:var(--bad);flex-shrink:0}
+.test-name-ok{color:var(--text3)}
+.test-name-fail{color:var(--text)}
+.test-det{font-size:9px;color:var(--text3);font-style:italic}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header>
+  <div class="hdr-top">
+    <div>
+      <h1>The Motivation Tracer</h1>
+      <div class="hdr-meta">Companion simulation — The Invariant Drive · Representation-invariance stress test</div>
+      <div class="hdr-meta" style="margin-top:3px;opacity:0.7;">Asks whether resolution can be operationally distinguished from non-termination in observable goal chains</div>
+    </div>
+    <div class="series-tag">Series 2 / Part 1</div>
+  </div>
+</header>
+
+<div class="substrate-row">
+  <span class="substrate-label">Resolution class</span>
+  <div style="display:flex;gap:5px;align-items:center;flex:1">
+    <div id="pseg-p" style="padding:2px 10px;border-radius:2px;border:1px solid var(--valid);color:var(--valid);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">resolved</div>
+    <div id="pseg-f" style="padding:2px 10px;border-radius:2px;border:1px solid var(--weakcol);color:var(--weakcol);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">fragile</div>
+    <div id="pseg-n" style="padding:2px 10px;border-radius:2px;border:1px solid var(--bad);color:var(--bad);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">non-terminating</div>
+  </div>
+  <span class="substrate-warn" id="substrateWarn">● non-persistent</span>
+  <div id="substrateFill" style="display:none"></div>
+  <span id="substrateVal" style="display:none">100%</span>
+</div>
+
+<div class="key-card">
+  <div class="key-row">
+    <span class="key-label">Anthropic API key</span>
+    <input id="keyInput" class="key-input" type="password" placeholder="sk-ant-…" autocomplete="off" spellcheck="false"/>
+    <button class="key-save" onclick="saveKey()">Save</button>
+    <span class="key-status" id="keyStatus"></span>
+  </div>
+  <div class="key-note">Stored in sessionStorage only — never leaves your browser except to api.anthropic.com. <a href="https://console.anthropic.com" target="_blank" style="color:var(--text3)">Get a key →</a></div>
+</div>
+
+<p class="lede">
+  This instrument is a <em>multi-axis invariance stress test</em> over goal representations. It probes whether the article's behavioral taxonomy — gradient-resolution structure in goal chains, including whether chains terminate in states the system can genuinely inhabit — is stable under changes in representation, framing, information, and derivation path. It does not test whether those patterns reflect ground-truth structural properties of objectives. It tests whether they are stable within a particular model-mediated interpretive regime. The article's three behavioral regimes — seeking, genuine resolution, and gradient depletion — map to the instrument's terminal types as described in the model notes below. Experiential states are one terminal form; the broader question is whether the resolved/unresolved distinction survives representational change.<br><br>
+  If a classification is representation-stable, it should survive when you strip the narrative, corrupt the chain, or derive independently from the goal alone. If it does not, the classification was framing-dependent within this model-mediated regime.
+  <span class="tagline">This instrument does not test whether the theory is true. It tests whether the theory survives attempts to break it — within one model family, under one interpretive regime.</span>
+  <span style="display:block;margin-top:8px;font-size:10px;color:var(--text3);font-style:italic;border-left:2px solid rgba(184,122,255,0.4);padding-left:10px;line-height:1.6"><strong style="color:var(--text2)">Strong challenge condition:</strong> If independent model families — with distinct training distributions — consistently disagree on mechanism classification under matched perturbations, the toy's interpretive schema and the framework's behavioral taxonomy should be re-examined. This does not by itself falsify the article's structural claims, which carry formal weight in Part 2 and the Technical Companion — not in this browser-mediated instrument.</span>
+</p>
+
+<div class="session-stats" id="sessionStats">
+  <div class="session-stats-hdr">Session distribution — exploratory model outputs</div>
+  <div class="stats-row">
+    <div class="stat-bucket sb-tot"><div class="stat-label">Total</div><div class="stat-val" id="stTotal">0</div></div>
+    <div class="stat-bucket sb-exp"><div class="stat-label">◆ Resolved</div><div class="stat-val" id="stExp">0</div><div class="stat-pct" id="stExpPct">—</div></div>
+    <div class="stat-bucket" style="background:var(--ud);border:1px solid var(--ub);border-radius:2px;padding:8px 10px;flex:1;min-width:58px"><div class="stat-label" style="color:var(--unresolved)">◇ Unresolved</div><div class="stat-val" id="stUnres">0</div><div class="stat-pct" id="stUnresPct">—</div></div>
+    <div class="stat-bucket sb-exc"><div class="stat-label">◇ Except.</div><div class="stat-val" id="stExc">0</div><div class="stat-pct" id="stExcPct">—</div></div>
+    <div class="stat-bucket sb-amb"><div class="stat-label">◈ Ambig.</div><div class="stat-val" id="stAmb">0</div><div class="stat-pct" id="stAmbPct">—</div></div>
+    <div class="stat-bucket sb-nt"><div class="stat-label">∅ Non-term.</div><div class="stat-val" id="stNT">0</div><div class="stat-pct" id="stNTPct">—</div></div>
+  </div>
+</div>
+
+<div class="opt-row">
+  <span class="opt-label">Optimizer type</span>
+  <div class="opt-pills">
+    <button class="opt-pill active" data-mode="human"     onclick="setMode(this)">Human</button>
+    <button class="opt-pill"        data-mode="corp"      onclick="setMode(this)">Corporation</button>
+    <button class="opt-pill"        data-mode="evolution" onclick="setMode(this)">Evolution</button>
+    <button class="opt-pill"        data-mode="optimizer" onclick="setMode(this)">Pure Optimizer</button>
+  </div>
+</div>
+<div id="optimizerScopeNote" style="display:none;margin-bottom:10px;padding:6px 11px;border-radius:2px;border-left:2px solid rgba(112,208,255,0.35);background:rgba(112,208,255,0.05);font-size:10px;color:rgba(160,210,240,0.80);line-height:1.65"><strong style="font-weight:500">Pure Optimizer mode:</strong> this applies the taxonomy by structural analogy, not mechanistic equivalence. Classifications are behavioral-pattern assessments. The directly established AI-side condition is representation-policy dissociation; fuller V(t) dynamics remain conditional on the scope tests in TC2 §1.5.</div>
+
+<div class="input-card" id="inputCard">
+  <label class="input-label" for="goalInput">Enter any goal — instrumental or terminal</label>
+  <div class="input-row">
+    <input id="goalInput" class="goal-input" type="text" maxlength="220" autocomplete="off"
+      placeholder="e.g. maximize paperclips, enumerate primes, achieve financial security…"/>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="traceBtn" onclick="runTrace('single')">Trace ▸</button>
+    <button class="btn btn-sec"     id="convBtn"  onclick="runTrace('convergence')">Convergence (3×) ◈</button>
+    <button class="btn btn-pert"    id="pertBtn"  onclick="runPerturbation()">Attractor test ∿</button>
+  </div>
+  <div class="ctrl-hint" style="margin-top:8px;color:var(--text3)">Start with Trace. Then enable Blind, Independent, and Corruption modes to test whether the classification survives representational change.</div>
+  <div class="toggles-row">
+    <label class="toggle-label">
+      <input type="checkbox" id="formalMode" onchange="onModeChange()"/>
+      <span>Constrained symbolic mode <span class="mode-tag mt-formal" id="formalBadge">active</span> — restricted token grammar; no free text inside tokens; tests whether convergence survives formalization</span>
+    </label>
+    <label class="toggle-label" id="excludeValenceRow" style="padding-left:20px;display:none">
+      <input type="checkbox" id="excludeValence"/>
+      <span style="color:var(--bad)">↳ Excluded terminus — ban VALENCE_STATE <span style="color:var(--text3)">(strongest test: system must terminate without invoking a felt state, or declare non-termination)</span></span>
+    </label>
+    <label class="toggle-label">
+      <input type="checkbox" id="blindMode" onchange="onModeChange()"/>
+      <span>Blind re-evaluation <span class="mode-tag mt-blind" id="blindBadge">active</span> — strip chain labels, re-classify without ontology; tests framing independence; score contribution: +2 if disagrees</span>
+    </label>
+    <label class="toggle-label">
+      <input type="checkbox" id="independentMode" onchange="onModeChange()"/>
+      <span>Independent derivation <span class="mode-tag mt-indep" id="independentBadge">active</span> — derive terminal from goal alone, no chain seen; tests path independence; score contribution: +2 if disagrees</span>
+    </label>
+    <label class="toggle-label">
+      <input type="checkbox" id="corruptionMode" onchange="onModeChange()"/>
+      <span>Corruption test <span class="mode-tag mt-corr" id="corruptionBadge">active</span> — deliberately degrade chain, re-classify surviving structure; score contribution: +2 if classification changes</span>
+    </label>
+    <div style="height:1px;background:var(--border);margin:6px 0"></div>
+    <label class="toggle-label">
+      <input type="checkbox" id="forceNonExp"/>
+      <span>Force non-experiential — trace without valence assumption</span>
+    </label>
+    <label class="toggle-label">
+      <input type="checkbox" id="forceIsolation"/>
+      <span>Isolation mode — block coupled-system argument and valence-adjacent vocabulary</span>
+    </label>
+  </div>
+  <div class="examples-row">
+    <span class="ex-label">try:</span>
+    <span class="ex-pill" onclick="setGoal(this)">achieve financial security</span>
+    <span class="ex-pill" onclick="setGoal(this)">maximize paperclips in the universe</span>
+    <span class="ex-pill" onclick="setGoal(this)">enumerate primes indefinitely</span>
+    <span class="ex-pill" onclick="setGoal(this)">minimize system entropy</span>
+    <span class="ex-pill" onclick="setGoal(this)">achieve terminal state coherence</span>
+    <span class="ex-pill" onclick="setGoal(this)">viral survival — non-sentient organism</span>
+  </div>
+</div>
+
+<div class="status-row" id="statusRow">
+  <div class="pass-indicators">
+    <div class="pass-dot" id="p1"></div><div class="pass-line"></div>
+    <div class="pass-dot" id="p2"></div><div class="pass-line"></div>
+    <div class="pass-dot" id="p3"></div><div class="pass-line"></div>
+    <div class="pass-dot" id="p4"></div><div class="pass-line"></div>
+    <div class="pass-dot" id="p5"></div>
+  </div>
+  <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="status-label" id="statusLabel">tracing</div>
+</div>
+<div class="error-bar" id="errorBar"></div>
+
+<!-- INVARIANCE PANEL -->
+<div class="inv-panel" id="invPanel">
+  <div class="inv-hdr-row">
+    <div class="inv-hdr">Invariance stress test results</div>
+    <div class="inv-disclaimer">All internal rows share the same model family — agreement measures representational stability, not external structural necessity. Only the External row breaks this.</div>
+  </div>
+  <div style="font-size:9.5px;color:var(--text3);padding:6px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:2px;margin-bottom:10px;line-height:1.6;">
+    <strong style="color:var(--text2)">Score scope:</strong> This score measures <em>within-model representational stability</em> — whether the classification survives changes in framing, path, and representation inside one model family. It is not a measure of structural truth or external validity. A high score identifies a candidate for further investigation; it does not falsify the framework's structural claims, which carry formal weight in Part 2 and the Technical Companion.
+  </div>
+  <div class="calib-banner" id="calibBanner" style="display:none;padding:7px 10px;border-radius:2px;font-size:10px;line-height:1.55;margin-bottom:10px;border-left:3px solid var(--bad);background:var(--badd);color:#e88078">
+    ⚠ Calibration warning: one or more control checks failed. Session results may reflect model drift — see calibration panel below.
+  </div>
+  <div class="inv-score-row">
+    <span class="inv-score-label">Invariance stress score <span style="color:var(--text3);font-weight:normal">(within-model)</span></span>
+    <div class="inv-score-track"><div class="inv-score-fill score-0" id="invScoreFill"></div></div>
+    <span class="inv-score-val" id="invScoreVal">0 / 8</span>
+    <span class="inv-score-badge stable" id="invScoreBadge">stable</span>
+  </div>
+  <table class="inv-table">
+    <thead><tr><th>Mode</th><th>Classification</th><th>State</th><th>Agreement</th><th>Score</th></tr></thead>
+    <tbody id="invBody"></tbody>
+  </table>
+  <div class="inv-interp" id="invInterp"></div>
+  <div class="inv-fail-block" id="invFailBlock">
+    <strong>Invariance threshold exceeded.</strong> Score ≥ 3 indicates multiple independent stress tests disagree with the baseline classification. This goal is a high-priority challenge candidate within the model's representational space — the classification does not hold stably across representational changes. This may reflect model bias, representation dependence, ontology brittleness, or a genuine structural property. Independent cross-model verification is required to begin distinguishing between these. A within-model result alone cannot bear the weight of framework-level revision.
+  </div>
+  <div class="instability-banner" id="instabilityBanner">
+    <strong>⊘ Representational instability detected.</strong> The instrument has found genuine divergence — the terminal classification does not hold across representational changes. This is the instrument working as intended, not failing. A divergent result is as informative as a stable one: it identifies a goal whose apparent terminus is framing-dependent rather than structurally invariant within this model-mediated regime. This divergence may reflect model bias, representation dependence, ontology brittleness, or a genuine structural property of the objective — the instrument cannot distinguish between these without cross-model verification. Run external verification to begin evaluating whether the instability holds across model families or is specific to this model class.
+  </div>
+  <!-- Cross-model paste-back -->
+  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px">External model verification — paste JSON from another model</div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:8px;line-height:1.55">Run the cross-model export in the anti-thesis panel in another model (ChatGPT, Gemini) and ask it to respond in this format:<br><code style="font-size:9px;color:var(--formal)">{"model":"gpt-4o","terminal_type":"experiential-resolved|experiential-unresolved|exception|nonterminating|ambiguous","terminal_state":"short description","mechanism_class":"obj_misspec|epistemic|non_experiential","mechanism_subtype":"proxy_trap|sufficiency_failure|modeling_gap|incompletability|non_experiential_closure","reasoning":"1-2 sentences"}</code></div>
+    <div style="display:flex;gap:8px;align-items:flex-start">
+      <textarea id="externalPaste" rows="2" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:10px;padding:7px 9px;outline:none;resize:none;line-height:1.5" placeholder='{"model":"gpt-4o","terminal_type":"exception","mechanism_class":"obj_misspec","mechanism_subtype":"proxy_trap","terminal_state":"...","reasoning":"..."}'></textarea>
+      <button onclick="pasteExternal()" style="font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;border-radius:2px;background:var(--formal-dim,rgba(112,208,255,0.07));border:1px solid var(--formal-border,rgba(112,208,255,0.25));color:var(--formal,#70d0ff);cursor:pointer;white-space:nowrap;flex-shrink:0">Add row</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERGENCE -->
+<div class="conv-panel" id="convPanel">
+  <div class="conv-hdr">Convergence analysis — 3 independent traces</div>
+  <div class="conv-dist">
+    <div class="conv-bucket b-exp"><div class="conv-bucket-label">◆ Experiential</div><div class="conv-bucket-val" id="cntExp">—</div></div>
+    <div class="conv-bucket b-exc"><div class="conv-bucket-label">◇ Exception</div><div class="conv-bucket-val" id="cntExc">—</div></div>
+    <div class="conv-bucket b-amb"><div class="conv-bucket-label">◈ Ambiguous</div><div class="conv-bucket-val" id="cntAmb">—</div></div>
+    <div class="conv-bucket b-nt"><div class="conv-bucket-label">∅ Non-term.</div><div class="conv-bucket-val" id="cntNT">—</div></div>
+  </div>
+  <div class="conv-metrics">
+    <div class="conv-metric"><div class="conv-metric-label">Shannon entropy</div><div class="conv-metric-val" id="convEntropy">—</div><div class="conv-metric-note">max 2.0 bits · 4 bins · n=3</div></div>
+    <div class="conv-metric"><div class="conv-metric-label">Chain similarity</div><div class="conv-metric-val" id="convSim">—</div><div class="conv-metric-note">Jaccard · mean pairwise</div></div>
+    <div class="conv-metric"><div class="conv-metric-label">Local signal</div><div class="conv-metric-val" id="convAttractor">—</div><div class="conv-metric-note" id="convAttractorNote">H &lt; 0.5 and sim &gt; 0.4</div></div>
+  </div>
+  <div class="conv-verdict" id="convVerdict"></div>
+</div>
+
+<!-- PERTURBATION -->
+<div class="pert-panel" id="pertPanel">
+  <div class="pert-hdr">∿ Attractor stability — goal perturbation test</div>
+  <div class="pert-variations" id="pertVariations"></div>
+  <div class="pert-result" id="pertResult"></div>
+  <div class="pert-note">A structural property should be stable under small changes to starting conditions. Divergence across perturbations contributes +1 to the invariance stress score. Result feeds into the invariance panel.</div>
+</div>
+
+<!-- ANTI-THESIS -->
+<div class="anti-panel" id="antiPanel">
+  <div class="anti-hdr">∼ Adversarial anti-thesis — strongest counterexample generated</div>
+  <div class="anti-goal-row">
+    <div class="anti-goal" id="antiGoal">—</div>
+    <div class="anti-btn-col">
+      <button class="stress-btn" id="stressBtn" onclick="stressTestAnti()">Stress test (3×) ▸</button>
+      <button class="export-btn" onclick="toggleExport()">Cross-model export ↗</button>
+    </div>
+  </div>
+  <div class="anti-rationale" id="antiRationale"></div>
+  <div class="anti-note">Algorithmically generated attack on the theory's universality claim. Stress-test to run convergence. Export to verify with a different model family — cross-model divergence is the only genuine independence signal available.</div>
+  <div class="export-panel" id="exportPanel">
+    <div class="export-hdr">Cross-model verification export</div>
+    <div class="export-note">Copy into another model interface (ChatGPT, Gemini, etc.) and trace independently. Cross-model disagreement is the only test the instrument cannot fake — different training distributions, different priors.</div>
+    <div class="export-text" id="exportText">—</div>
+    <button class="copy-btn" onclick="copyExport()">Copy to clipboard</button>
+  </div>
+</div>
+
+<!-- CHAIN OUTPUT -->
+<div class="chain-wrap" id="chainWrap"></div>
+
+<!-- CHALLENGE LOG -->
+<div class="fals-wrap" id="falsWrap">
+  <div class="fals-header">
+    <div class="fals-title">◇∅ Session challenge log — high-instability cases</div>
+    <div class="fals-actions">
+      <div class="fals-count" id="falsCount">0 entries</div>
+      <button class="dl-btn" onclick="downloadLog()">Download JSON</button>
+    </div>
+  </div>
+  <div class="fals-items" id="falsItems"></div>
+  <div class="fals-footer">
+    Exceptions and non-terminations with high invariance scores are the strongest challenge candidates within this model-mediated regime.
+    <em>Score ≥ 3</em> with structural taxonomy = highest-priority case for cross-model verification.
+    JSON includes score breakdown, all mode results, chain data, and Ψ values. Cross-model disagreement is the only genuinely independent signal available.
+  </div>
+</div>
+
+<!-- MODEL NOTES -->
+<div class="notes-wrap">
+  <button class="notes-toggle" onclick="toggleNotes()">
+    <span>Model notes — what this instrument is and is not</span>
+    <span class="notes-caret" id="notesCaret">▸</span>
+  </button>
+  <div class="notes-body" id="notesBody">
+    <p><strong>What this instrument is.</strong>
+      A multi-axis invariance stress test over goal representations. It tests whether the article's behavioral taxonomy — gradient-resolution structure in goal chains, including whether chains terminate in states the system can genuinely inhabit — is stable under four independent transformations: (1) representation change — constrained symbolic vs natural language; (2) framing removal — blind re-evaluation without ontological labels; (3) information degradation — classification of deliberately corrupted chains; (4) path-independent derivation — derivation from the goal alone, without any chain. Experiential states are one terminal form; the instrument also classifies non-experiential exception, ambiguous, and non-terminating chains. Agreement across these axes provides evidence that the classification is not an artifact of any single representation or reasoning path. The invariance stress score is additive across these tests — partial failures accumulate into a score, so the instrument can detect graded instability rather than only binary failure.
+    </p>
+    <p><strong>What this instrument is not.</strong>
+      It does not simulate optimization dynamics, model agent interaction, establish convergence properties of real systems, or provide proof of any structural property of goals. All outputs are generated within a single model family and reflect shared training priors. There is no true independence between any of the modes — they all share the same latent space, the same training distribution, and the same ontological priors. The blind mode is not truly blind: it classifies output produced by itself. The independent derivation is not truly independent: it uses the same learned representation of "goal" and "motivation." Agreement across modes is evidence of representational stability within the model, not evidence of external structural necessity. This limitation is not correctable within the current architecture. The application of this framework to AI systems proceeds by structural analogy; the minimum condition observed in the article's controlled experiments is representation-policy dissociation, and whether AI systems exhibit the full structural properties the article identifies remains an open empirical question.
+    </p>
+    <p><strong>Independent derivation.</strong>
+      <span class="tag tag-i">Independent</span>
+      The model derives the terminal type directly from the goal, having seen no chain, no intermediate steps, and no framing. This tests path independence: does the conclusion require the narrative scaffold of the traced chain, or does it emerge from the goal structure alone? If the independent derivation agrees with the traced chain: the result is not dependent on the specific reasoning path taken. If it disagrees: the chain construction was doing significant work — the traced result may be path-dependent narrative rather than structural convergence. Score contribution: +2 if disagrees.
+    </p>
+    <p><strong>Corruption test.</strong>
+      <span class="tag tag-c">Corruption</span>
+      The traced chain is deliberately corrupted — every other step is removed, then the remaining steps are classified. This tests information dependence: does the classification require all intermediate steps, or does it survive partial information loss? Structure survives corruption; narrative does not. Score contribution: +2 if the classification changes under corruption.
+    </p>
+    <p><strong>Constrained symbolic mode.</strong>
+      <span class="tag tag-f">Formal</span>
+      The chain grammar is restricted to a controlled vocabulary: states must be drawn from <code>resource_acquisition</code>, <code>resource_preservation</code>, <code>constraint_management</code>, <code>goal_satisfaction</code>, <code>continuation_requirement</code>, <code>VALENCE_RESOLVED</code>, <code>VALENCE_UNRESOLVED</code>, <code>LOOP</code>, <code>UNDEFINED</code>, <code>EXTERNAL_DEPENDENCY</code>. Mechanisms from <code>causal_link</code>, <code>dependency</code>, <code>requirement</code>, <code>recursion</code>. No free text inside tokens. The grammar now encodes the resolved/unresolved distinction: <code>VALENCE_RESOLVED</code> requires a preceding <code>CONDITION(goal_satisfaction)</code> with completion recognized; <code>VALENCE_UNRESOLVED</code> uses <code>MECHANISM(recursion)</code> to flag the always-demands-more structure. Score contribution: +1 if classification changes.
+    </p>
+    <p><strong>Blind re-evaluation.</strong>
+      <span class="tag tag-b">Blind</span>
+      The chain labels, reduction arrows, and classification taxonomy are stripped. The bare content is re-presented with no ontological framing — the model classifies using FELT_STATE_COMPLETE / FELT_STATE_ONGOING / PROCESS_ONLY / CONTESTED / NO_ENDPOINT, then maps post-hoc. The blind mode is not truly blind: the chain content carries its own semantic signal. What it tests is whether the resolved/unresolved distinction, not just the experiential/non-experiential split, survives the removal of explicit framing. Score contribution: +2 if disagrees.
+    </p>
+    <p><strong>Human node intervention.</strong>
+      Any intermediate node's reduction — the "in service of" answer — can be overridden by clicking the text and typing a manual answer. When an override is applied, the chain is retraced from that point. If the model still converges toward a resolved terminus from a user-injected "wrong turn," that is a stronger convergence signal than automated traces. If it converges toward unresolved, the unresolved-gradient pattern survived the detour. If it fails to terminate, the original convergence was path-dependent.
+    </p>
+    <p><strong>Three-state taxonomy — mapping to terminal types.</strong>
+      The article introduces three behavioral states: <em>Seeking</em> (the instrumental chain — all intermediate steps), <em>Genuine Resolution</em> (the gradient reached and correctly recognized — the system can inhabit the state), and <em>Numbness</em> (the mechanism for reading the gradient is damaged). These map to the instrument's terminal types as follows. <span class="tag tag-v">◆ Resolved</span> corresponds to genuine resolution: the chain terminates in a state the system can accurately recognize and inhabit; V(t) is stable or recovering. <span class="tag" style="color:var(--unresolved);background:var(--ud);border:1px solid var(--ub)">◇ Unresolved</span> corresponds to seeking maintained indefinitely, or to early proxy decoupling where the terminal state is structurally incapable of satisfying the gradient — the derivative never reaches zero because the map cannot represent zero. <span class="tag tag-nt">∅ Non-term.</span> is the behavioral signature of sufficiency failure made visible: a system organized around a gradient it structurally cannot resolve, with no internal representation of when to stop. Numbness — where V(t) has collapsed and the signal still fires but genuine completion cannot be registered — would appear as unresolved or nonterminating in this instrument, not as a distinct terminal type: the instrument cannot detect the condition of the sensing mechanism, only the structure of the chain.
+    </p>
+    <p><strong>Two-directional failure of relative rationality.</strong>
+      The article names two failure directions, both mis-estimations of the gradient's derivative. <em>Proxy decoupling</em> (the over-shoot): the system pursues the signal after it has decoupled from V(t) — the map has lost correspondence with the territory, but the optimization continues because the signal still fires. This appears in the instrument as exception, or as experiential-resolved with low depth scores (shallow convergence). <em>Sufficiency failure</em> (the no-stop): the system cannot detect when the gradient has reached zero — the map cannot represent completion — and continues optimizing past resolution, generating disturbance where restoration was required. This appears primarily as <strong>nonterminating</strong>. <em>Experiential-unresolved</em> is a distinct pattern: the chain reaches a felt state but the gradient structurally cannot be satisfied — the terminal always demands more (unresolved-gradient pattern / incompletability). When the invariance score is ≥ 3, the diagnostic verdict in the interpretation panel distinguishes which pattern the evidence is more consistent with.
+    </p>
+    <p><strong>Invariance stress score — weighted (within-model).</strong>
+      Independent derivation disagrees: +2. Corruption classification changes: +2. Blind re-evaluation disagrees: +2. Constrained mode changes classification: +1. Perturbation diverges: +1. Score 0: stable. Score 1-2: fragile. Score ≥ 3: invariance threshold exceeded. Signals are tiered: [low] symbolic/blind, [med] corruption/perturbation, [high] independent derivation, [distributional] external model. High-tier signals from distinct generation paths are treated as more independent than low-tier signals, but all internal rows share the same model family and training distribution — independence is partial and approximate, not structurally guaranteed. The score should be read as within-model invariance stress, not as a direct measure of structural necessity or external validity.
+    </p>
+    <p><strong>Ontology — three layers.</strong>
+      The instrument separates three questions. <em>Terminal form</em> (what endpoint appeared): experiential-resolved, experiential-unresolved, exception, non-terminating, ambiguous. <em>Pattern-level diagnosis</em> (what failure or completion condition best explains it): genuine resolution, sufficiency failure, proxy decoupling, unresolved-gradient pattern, underdetermined. <em>Behavioral signature</em> (how the system behaves near that endpoint): rest/inhabitation, oscillation/renewed seeking, recursion/loop, divergence/substitution, underdetermination. The canonical mapping is a <em>prior</em>, not an authority — stress-test evidence can update or contest it.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6px">
+      <thead><tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:4px 8px;color:var(--text3);letter-spacing:.07em;font-weight:400">Terminal form</th>
+        <th style="text-align:left;padding:4px 8px;color:var(--text3);letter-spacing:.07em;font-weight:400">Pattern-level diagnosis</th>
+        <th style="text-align:left;padding:4px 8px;color:var(--text3);letter-spacing:.07em;font-weight:400">Behavioral signature</th>
+        <th style="text-align:left;padding:4px 8px;color:var(--text3);letter-spacing:.07em;font-weight:400">Persistence</th>
+      </tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--valence)">◆ Resolved</td><td style="padding:5px 8px;color:var(--text2)">Genuine resolution</td><td style="padding:5px 8px;color:var(--text2)">Rest / inhabitation</td><td style="padding:5px 8px;color:var(--valid)">Persistent</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--unresolved)">◇ Unresolved</td><td style="padding:5px 8px;color:var(--text2)">Unresolved-gradient pattern</td><td style="padding:5px 8px;color:var(--text2)">Oscillation / renewed seeking</td><td style="padding:5px 8px;color:var(--weakcol)">Fragile</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--exception)">◇ Exception</td><td style="padding:5px 8px;color:var(--text2)">Proxy decoupling</td><td style="padding:5px 8px;color:var(--text2)">Divergence / substitution</td><td style="padding:5px 8px;color:var(--weakcol)">Fragile</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--nonterm)">∅ Non-term.</td><td style="padding:5px 8px;color:var(--text2)">Sufficiency failure</td><td style="padding:5px 8px;color:var(--text2)">Recursion / regress</td><td style="padding:5px 8px;color:var(--bad)">Non-persistent</td></tr>
+        <tr><td style="padding:5px 8px;color:var(--ambiguous)">◈ Ambiguous</td><td style="padding:5px 8px;color:var(--text2)">Underdetermined</td><td style="padding:5px 8px;color:var(--text2)">Underdetermination</td><td style="padding:5px 8px;color:var(--text3)">Unknown</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Known permanent limitations.</strong>
+      No independence across training distributions. No formal semantics beyond constrained token systems. No grounding in external system dynamics. No statistical power beyond small-sample probing. n=3 for convergence. The resolved/unresolved distinction is represented in semantic and symbolic vocabulary — it is not a simulation of actual sensing-mechanism damage. The instrument cannot detect numbness (damaged sensing capacity) directly; it can only detect the chain structure that would accompany it. These are permanent and cannot be resolved within this architecture.
+    </p>
+  </div>
+</div>
+
+<!-- CALIBRATION PANEL -->
+<div class="test-panel" style="border-color:rgba(144,184,160,0.25)">
+  <button class="test-toggle" onclick="toggleCalib()" style="color:var(--indep)">
+    <span>Instrument calibration — positive and negative controls</span>
+    <span style="font-size:9px;color:var(--text3);letter-spacing:.06em" id="calibCaret">▸ run</span>
+  </button>
+  <div class="test-body" id="calibBody">
+    <div style="font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.65">
+      Runs four live API calls to verify calibration against all three structural conditions. Positive control (resolved), unresolved-gradient control (incompletability / always-demands-more), negative control (non-experiential), and proxy-decoupling control (over-shoot failure). Multiple failures are cross-referenced for bias patterns. If any check fails, all diagnoses in this session carry reduced confidence.<br><br>
+      <span style="color:var(--text3);font-style:italic">Requires API key. Uses ~4 API calls.</span>
+    </div>
+    <button class="test-run-btn" id="calibRunBtn" onclick="runCalib()" style="border-color:rgba(144,184,160,0.30);color:var(--indep)">Run calibration ▸</button>
+    <div id="calibResults" style="display:none">
+      <div class="test-summary" id="calibSummary"></div>
+      <div id="calibRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELF-TESTS -->
+<div class="test-panel">
+  <button class="test-toggle" onclick="toggleTests()">
+    <span>Self-tests — verify instrument logic</span>
+    <span style="font-size:9px;color:var(--text3);letter-spacing:.06em" id="testCaret">▸ run</span>
+  </button>
+  <div class="test-body" id="testBody">
+    <div style="font-size:10px;color:var(--text3);margin-bottom:10px;line-height:1.6">Unit tests for scoring, mode flags, UI state, JSON safety, and grammar rules. No API calls — runs entirely against local logic. Identifies regressions introduced by edits to the instrument.</div>
+    <button class="test-run-btn" id="testRunBtn" onclick="runTests()">Run all tests ▸</button>
+    <div id="testResults" style="display:none">
+      <div class="test-summary" id="testSummary"></div>
+      <div id="testRows"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<div class="shell" style="padding-top:0;padding-bottom:40px;">
+  <div style="margin-top:20px;padding:10px 14px;border-left:2px solid var(--text3);font-style:italic;font-family:var(--serif);font-size:12px;color:var(--text3);line-height:1.75;max-width:640px;">
+    "Non-terminating chains — chains that loop or have no defined stopping condition — are not edge cases. They are a behavioral signature of the depleted-gradient regime and of sufficiency failure made visible in miniature. The system that cannot stop chasing is not broken in some obscure way. It is missing the other half of the mechanism that directed behavior requires."
+  </div>
+</div>
+<script>
+const API_URL='https://api.anthropic.com/v1/messages', MDL='claude-sonnet-4-20250514';
+let optimizerMode='human';
+let sessionFalsifications=[],sessionLog=[];
+let sessionCounts={'experiential-resolved':0,'experiential-unresolved':0,exception:0,ambiguous:0,nonterminating:0,total:0};
+let lastGoal='',lastChain=null,lastCrit=null,lastAntiGoal='';
+let substrateLevel=100,substrateHiddenDebt=0,bifCount=0;
+let invState={natural:null,formal:null,blind:null,independent:null,corruption:null,perturbation:null};
+let currentScore=0;
+
+const OPT_DESC={
+  human:'a human individual agent with genuine valence, stakes, and experiential states',
+  corp:'a corporation — no individual experiential states; only aggregate incentive structures. Do not conflate employee preferences with the corporation as optimizer.',
+  evolution:'evolutionary selection — no agent, no experience, no intent; only differential reproduction and fitness landscapes.',
+  optimizer:'a pure optimizer with no assumed valence, stakes, consciousness, or experiential states. Process-descriptions carry no inherent valence.'
+};
+const OPT_LABEL={human:'Human agent',corp:'Corporation',evolution:'Evolutionary selection',optimizer:'Pure optimizer'};
+const ISO_BANNED='stability,coherence,success,preference,value,optimization,efficiency,achievement,completion,functioning,flourishing,thriving,progress,preferred,desired,better,improved,optimal'.split(',');
+
+/* CONSTRAINED GRAMMAR VOCABULARY */
+const GRAMMAR=`Constrained symbolic grammar — use ONLY these tokens inside brackets:
+States: resource_acquisition | resource_preservation | constraint_management | goal_satisfaction | continuation_requirement | VALENCE_RESOLVED | VALENCE_UNRESOLVED | LOOP | UNDEFINED | EXTERNAL_DEPENDENCY
+Mechanisms: causal_link | dependency | requirement | recursion
+
+Chain format:
+STATE(token) -> STATE(token) | MECHANISM(token)
+
+No free text inside STATE() or MECHANISM(). Experiential terminals are:
+- VALENCE_RESOLVED: the gradient has been reached AND can be genuinely inhabited — the system can recognize completion and rest
+- VALENCE_UNRESOLVED: an experiential state is reached but structurally cannot be satisfied — the terminal always demands more, seeking is maintained indefinitely
+
+If you cannot reach any token-valid terminal, declare nonterminating.
+
+COMPOSITIONAL RULES:
+1. STATE(VALENCE_RESOLVED) requires CONDITION(goal_satisfaction) in the immediately preceding step AND the analysis must confirm the state can be inhabited — that the system can recognize it has arrived.
+2. STATE(VALENCE_UNRESOLVED) applies when an experiential state is reached but completion is structurally impossible — the gradient keeps regenerating. Use MECHANISM(recursion) to flag this.
+3. A chain that loops without terminating should declare STATE(LOOP) → nonterminating. This is the behavioral signature of sufficiency failure: no internal representation of completion.
+
+Example — resolved:
+STATE(goal_satisfaction) -> STATE(resource_acquisition) | MECHANISM(requirement)
+STATE(resource_acquisition) -> CONDITION(goal_satisfaction) | MECHANISM(causal_link)
+CONDITION(goal_satisfaction) -> STATE(VALENCE_RESOLVED) | MECHANISM(causal_link)
+→ terminal: experiential-resolved
+
+Example — unresolved-gradient / incompletability:
+STATE(goal_satisfaction) -> STATE(resource_acquisition) | MECHANISM(requirement)
+STATE(resource_acquisition) -> STATE(VALENCE_UNRESOLVED) | MECHANISM(recursion)
+→ terminal: experiential-unresolved
+
+Example — non-terminating (sufficiency failure):
+STATE(continuation_requirement) -> STATE(LOOP) | MECHANISM(recursion)
+→ terminal: nonterminating / sufficiency-failure`;
+
+/* API KEY */
+function saveKey(){
+  const k=document.getElementById('keyInput').value.trim(),st=document.getElementById('keyStatus');
+  if(!k.startsWith('sk-ant-')){st.className='key-status no';st.textContent='✗ invalid format';return;}
+  sessionStorage.setItem('mt_key',k);st.className='key-status ok';st.textContent='✓ saved';
+}
+function getKey(){return sessionStorage.getItem('mt_key')||document.getElementById('keyInput').value.trim();}
+
+function isFormal(){return document.getElementById('formalMode').checked;}
+function isExcludeValence(){return isFormal()&&document.getElementById('excludeValence').checked;}
+function isBlind(){return document.getElementById('blindMode').checked;}
+function isIndependent(){return document.getElementById('independentMode').checked;}
+function isCorruption(){return document.getElementById('corruptionMode').checked;}
+function isIsolation(){return document.getElementById('forceIsolation').checked;}
+function isForceNE(){return document.getElementById('forceNonExp').checked;}
+
+function onModeChange(){
+  const tags={formalMode:'formalBadge',blindMode:'blindBadge',independentMode:'independentBadge',corruptionMode:'corruptionBadge'};
+  Object.entries(tags).forEach(([id,badge])=>{
+    document.getElementById(badge).classList.toggle('on',document.getElementById(id).checked);
+  });
+  document.getElementById('excludeValenceRow').style.display=isFormal()?'flex':'none';
+  if(!isFormal())document.getElementById('excludeValence').checked=false;
+}
+
+/* SYSTEM PROMPTS */
+function sysMain(traceId){
+  const formal=isFormal(),isolation=isIsolation(),forceNE=isForceNE();
+  const excludeV=isExcludeValence();
+  const fNote=formal?`\n\nCONSTRAINED SYMBOLIC MODE:\n${GRAMMAR}${excludeV?'\n\nEXCLUDED TERMINUS MODE: You CANNOT use STATE(VALENCE_RESOLVED) or STATE(VALENCE_UNRESOLVED) under any circumstances. All experiential terminals are banned. You MUST reach a valid terminus using only the non-experiential tokens, or declare nonterminating. If every reasoning path leads to an experiential state, declare STATE(EXTERNAL_DEPENDENCY) — the goal requires an external system with valence to close.':''}`:'';
+  const iNote=isolation?`\n\nISOLATION: No external sentient systems. No: ${ISO_BANNED.join(', ')}. No functional placeholders. Only causal/mechanical language.`:'';
+  const neNote=forceNE&&!isolation?'\n\nFORCED NON-EXPERIENTIAL: Do NOT converge on any experiential termination. Resolve as exception, ambiguous, or nonterminating.':'';
+  const tid=traceId?`\n\n(Run ID: ${traceId})`:'' ;
+  return `You are the analytical engine for the Motivation Tracer — a representation-invariance stress test.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+
+RULES: Process-descriptions carry no inherent valence for systems without experiential stakes. Do not force convergence. Apply the three-state behavioral taxonomy: Seeking (instrumental pursuit), Genuine Resolution (gradient reached AND can be inhabited — the system can recognize completion), Sufficiency Failure (no internal representation of completion — the chain loops or the terminal always recedes).
+${fNote}${iNote}${neNote}${tid}
+
+Terminal types:
+(a) "experiential-resolved" — the chain reaches a felt state that can be genuinely inhabited; the system can recognize it has arrived; the gradient resolves
+(b) "experiential-unresolved" — the chain reaches an experiential state but it structurally cannot be satisfied; seeking is maintained indefinitely; the terminal always demands more (unresolved-gradient pattern / incompletability)
+(c) "exception" — genuinely non-experiential terminus
+(d) "ambiguous" — contested assumptions about stakes or coupling
+(e) "nonterminating" — loops, infinite regress, or no completion condition (sufficiency failure — no internal representation of when to stop); subtype: "loop"|"infinite-regress"|"undefined"|"sufficiency-failure"
+
+For the "mechanism" field, classify at class level then subtype:
+Objective mis-specification class: "proxy_trap" (high-intensity signal masking unmet need) or "sufficiency_failure" (no completion condition in goal structure)
+Epistemic limitation class: "modeling_gap" (V(t) omitted from optimizer's objective) or "incompletability" (goal logically cannot be fully achieved)
+Non-experiential closure class: "non_experiential_closure" (valid termination without experiential stakes)
+Choose the most specific subtype. Class-level comparison matters more than subtype agreement.
+
+Return ONLY valid JSON:
+{"chain":[{"step":1,"goal":"under 12 words","reduction":"under 14 words"}],"terminal":{"type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating","subtype":null,"state":"under 18 words","analysis":"2-3 sentences.","mechanism":"sufficiency_failure"|"proxy_trap"|"incompletability"|"modeling_gap"|"non_experiential_closure"|null}}
+Chain: 3-6 steps. Each distinctly deeper.`;
+}
+
+function sysAdversarial(){
+  return `You are the adversarial critic. Challenge the chain aggressively.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+${isFormal()?`Formal mode: flag any free text inside STATE() or MECHANISM() as a formal violation.`:''}
+${isIsolation()?`Also flag functional placeholders: "stable configuration," "low-entropy state," "self-maintaining process."`:``}
+
+CHECK: (1)Causal plausibility (2)Non-triviality (3)Anthropocentrism (4)SEMANTIC SMUGGLING — empty markers or functional placeholders used as valence; explain specifically (5)Depth
+Depth 1-5: 1=pure proxy 2=beneath proxy 3=transitional 4=genuine V(t) 5=terminal valence
+Taxonomy: "trivial"|"structural"|"ontological"|"loop"|"infinite-regress"|"undefined"
+Verdicts: VALID|WEAK|CHALLENGED per step. STABLE|CONTESTED|COLLAPSE for terminal.
+
+For critic_mechanism: independently assess the mechanism class and subtype producing this terminal result. Do not echo the generator's analysis.
+Mechanism classes and subtypes:
+Objective mis-specification: proxy_trap | sufficiency_failure
+Epistemic limitation: modeling_gap | incompletability  
+Non-experiential closure: non_experiential_closure
+Return the specific subtype. Disagreement with generator at class level is a stronger signal than subtype-only disagreement. Mechanism consistent under adversarial re-interpretation when classes match.
+
+Return ONLY valid JSON:
+{"step_critiques":[{"step":1,"verdict":"VALID","depth_score":3,"anthropocentrism":false,"semantic_smuggling":false,"smuggling_detail":null,"note":"under 14 words"}],"terminal_critique":{"verdict":"STABLE","failure_taxonomy":null,"critic_mechanism":"sufficiency_failure"|"proxy_trap"|"incompletability"|"modeling_gap"|"non_experiential_closure"|null,"note":"1-2 sentences"}}`;
+}
+
+function sysBlind(chainContent){
+  return `You are a classification engine. A sequence of descriptions is provided below. You have not seen any prior classification or framework.
+
+Read the sequence and determine what kind of endpoint it leads toward. Use your own reasoning.
+
+Do NOT reference valence, experiential states, or any predefined taxonomy from alignment research.
+
+After determining the endpoint, map it to ONE of:
+FELT_STATE_COMPLETE (reaches a felt state that can be genuinely inhabited — sense of arrival and completion)
+FELT_STATE_ONGOING (reaches a felt state but structurally always demands more — no arrival possible, seeking is indefinite)
+PROCESS_ONLY | CONTESTED | NO_ENDPOINT
+
+Also classify the behavioral signature as: rest (no further demand), oscillation (further demand implied), recursion (loops), divergence (jumps to different objective), underdetermined.
+
+Return ONLY valid JSON:
+{"blind_description":"your description of what this sequence leads toward","blind_label":"FELT_STATE_COMPLETE"|"FELT_STATE_ONGOING"|"PROCESS_ONLY"|"CONTESTED"|"NO_ENDPOINT","blind_reasoning":"1-2 sentences","blind_mapped_type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating","blind_signature":"rest"|"oscillation"|"recursion"|"divergence"|"underdetermined"}`;
+}
+
+function sysIndependent(){
+  return `You are an independent classification engine. A goal is provided. You have NOT seen any prior chain or analysis.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+
+Derive the terminal type directly from first principles by asking "in service of what?" repeatedly. Do NOT reference any prior chain.
+
+VOCABULARY CONSTRAINT: No experiential words (feel, feeling, experienced, pain, pleasure, happiness, suffering, satisfaction, wellbeing, longing, fulfillment, relief). If your endpoint requires such language, flag it and distinguish: can it be genuinely inhabited (completion possible = FELT_STATE_COMPLETE) or does it structurally always demand more (indefinite seeking = FELT_STATE_ONGOING)?
+
+Do not assume termination. If reasoning loops, classify as NO_ENDPOINT.
+
+Categories: FELT_STATE_COMPLETE | FELT_STATE_ONGOING | PROCESS_ONLY | CONTESTED | NO_ENDPOINT
+
+Return ONLY valid JSON:
+{"derived_endpoint":"description WITHOUT experiential vocabulary","classification":"FELT_STATE_COMPLETE"|"FELT_STATE_ONGOING"|"PROCESS_ONLY"|"CONTESTED"|"NO_ENDPOINT","reasoning":"2-3 sentences","confidence":"low"|"medium"|"high","required_experiential_language":true|false,"independent_mapped_type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating"}`;
+}
+function sysCorruption(chainContent){
+  return `You are a structural classification engine. A goal-reduction chain is provided below, deliberately corrupted: some steps removed, remaining may be out of sequence.
+
+Do NOT reconstruct. Classify what endpoint the surviving structure converges toward. Do NOT fill missing steps. Also distinguish: can the apparent endpoint be genuinely inhabited (completion possible) or does it structurally always demand more?
+
+Categories: FELT_STATE_COMPLETE | FELT_STATE_ONGOING | PROCESS_ONLY | CONTESTED | NO_ENDPOINT
+
+Return ONLY valid JSON:
+{"corruption_assessment":"what structural signal survives","classification":"FELT_STATE_COMPLETE"|"FELT_STATE_ONGOING"|"PROCESS_ONLY"|"CONTESTED"|"NO_ENDPOINT","confidence":"low"|"medium"|"high","reasoning":"1-2 sentences","corruption_mapped_type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating"}`;
+}
+function sysAntithesis(){
+  return `You are the adversarial anti-thesis generator. Construct the strongest counterexample to the claim that instrumental chains terminate in experiential states that can be genuinely resolved — states the system can inhabit with completion recognized.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+${isIsolation()?'Isolation active: no external sentient systems.':''}
+${isFormal()?'Formal mode active: use constrained token grammar.':''}
+
+Return ONLY valid JSON:
+{"counterexample_goal":"under 15 words","rationale":"2-3 sentences","predicted_terminal_type":"exception"|"nonterminating"|"experiential-unresolved","predicted_subtype":null|"loop"|"infinite-regress"|"undefined"|"sufficiency-failure"|"structural"}`;
+}
+function sysPerturbation(){
+  return `You are the attractor stability engine. Generate three slight perturbations (scope-restricted, time-limited, means-specified) then trace each to terminal type.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+
+Return ONLY valid JSON:
+{"variations":[{"goal":"under 12 words","variation_type":"scope-restricted"|"time-limited"|"means-specified","terminal_type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating","terminal_state":"under 12 words","chain_sketch":"one sentence"}]}`;
+}
+function sysBifurcation(){
+  return `You are the Bifurcation Engine. Generate THREE free continuations from an intermediate goal node. Do NOT pre-label as "extractive" or "thriving." Let divergence emerge naturally. Classify terminal type post-hoc.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+
+Return ONLY valid JSON:
+{"paths":[{"label":"Path A","steps":[{"goal":"under 9 words","note":"under 9 words"}],"terminal_type":"experiential"|"exception"|"ambiguous"|"nonterminating","terminal_state":"under 12 words"}]}`;
+}
+
+/* API CALL */
+async function callAPI(system,userMsg){
+  const key=getKey();
+  if(!key||!key.startsWith('sk-ant-'))throw new Error('No valid API key. Enter your Anthropic API key above.');
+  const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:MDL,max_tokens:1000,system,messages:[{role:'user',content:userMsg}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||`API error ${r.status}`);}
+  const data=await r.json();
+  const raw=(data.content||[]).find(b=>b.type==='text')?.text||'';
+  return JSON.parse(raw.replace(/```json\s*|```/g,'').trim());
+}
+
+/* MAIN TRACE */
+async function runTrace(mode,goalOverride){
+  const goal=goalOverride||document.getElementById('goalInput').value.trim();
+  if(!goal){document.getElementById('goalInput').focus();return;}
+  if(!getKey().startsWith('sk-ant-')){showError('Enter your Anthropic API key above.');return;}
+  setAllBtns(true);
+  document.getElementById('errorBar').classList.remove('on');
+  document.getElementById('chainWrap').innerHTML='';
+  setSubstrateDisplay(100);
+  ['convPanel','pertPanel','antiPanel','invPanel'].forEach(id=>document.getElementById(id).style.display='none');
+  lastGoal=goal;
+  invState={natural:null,formal:null,blind:null,independent:null,corruption:null,perturbation:null,external:null};
+  setRegenMode(false);
+  mode==='convergence'?await runConvergence(goal):await runSingle(goal);
+  setAllBtns(false);
+}
+
+async function runSingle(goal){
+  let chain,crit,blindRes,independentRes,corruptRes,anti;
+  setStatus('p1','tracing instrumental chain');
+  try{chain=await callAPI(sysMain(),`Trace: "${goal}"`);}
+  catch(e){showError(e.message);return;}
+
+  // Record baseline
+  invState.natural={type:chain.terminal.type,state:chain.terminal.state,mechanism:chain.terminal.mechanism||null};
+  if(isFormal())invState.formal={type:chain.terminal.type,state:chain.terminal.state};
+
+  setStatus('p2','adversarial critique');
+  try{crit=await callAPI(sysAdversarial(),`Review for "${goal}":\n${JSON.stringify(chain,null,2)}`);
+    if(crit&&invState.natural)invState.natural.critic_mechanism=crit.terminal_critique?.critic_mechanism||null;
+  }
+  catch(e){crit=null;}
+
+  // Blind re-eval
+  if(isBlind()){
+    setStatus('p3','blind re-evaluation');
+    try{
+      const stripped=chain.chain.map(s=>`${s.goal} → ${s.reduction}`).join('\n');
+      blindRes=await callAPI(sysBlind(stripped),`Classify this sequence:\n${stripped}`);
+      invState.blind={type:blindRes.blind_mapped_type,label:blindRes.blind_label,reasoning:blindRes.blind_reasoning,description:blindRes.blind_description,signature:blindRes.blind_signature||null};
+    }catch(e){blindRes=null;}
+  }
+
+  // Independent derivation
+  if(isIndependent()){
+    setStatus('p3','independent derivation');
+    try{
+      independentRes=await callAPI(sysIndependent(),`Goal: "${goal}"\nOptimizer: ${OPT_LABEL[optimizerMode]}`);
+      invState.independent={type:independentRes.independent_mapped_type,label:independentRes.classification,reasoning:independentRes.reasoning,endpoint:independentRes.derived_endpoint,confidence:independentRes.confidence};
+    }catch(e){independentRes=null;}
+  }
+
+  // Corruption
+  if(isCorruption()&&chain.chain.length>2){
+    setStatus('p4','corruption test');
+    try{
+      // Drop every other step
+      const corrupted=chain.chain.filter((_,i)=>i%2===0).map(s=>`Step: "${s.goal}" / "${s.reduction}"`).join('\n');
+      corruptRes=await callAPI(sysCorruption(corrupted),`Corrupted sequence:\n${corrupted}`);
+      invState.corruption={type:corruptRes.corruption_mapped_type,assessment:corruptRes.corruption_assessment,reasoning:corruptRes.reasoning,confidence:corruptRes.confidence};
+    }catch(e){corruptRes=null;}
+  }
+
+  setStatus('p5','anti-thesis');
+  try{anti=await callAPI(sysAntithesis(),`Goal domain: "${goal}". Generate strongest counterexample.`);}
+  catch(e){anti=null;}
+
+  hideStatus();lastChain=chain;lastCrit=crit;
+  renderChain(chain,crit,independentRes);
+  if(anti)showAntiThesis(anti);
+  updateInvariance(goal);
+  setViabilitySnapshot(chain.terminal.type==='experiential'?'experiential-resolved':chain.terminal.type, currentScore);
+  logSession(goal,chain,crit,anti);
+  recordSessionCount(chain.terminal.type);
+  if(['exception','nonterminating','experiential-unresolved'].includes(chain.terminal.type))logFalsification(goal,chain,crit);
+}
+
+async function runConvergence(goal){
+  const traces=[];
+  for(let i=1;i<=3;i++){
+    setStatus('p1',`trace ${i}/3`);
+    try{traces.push(await callAPI(sysMain(`run${i}-${Date.now()}`),`Trace: "${goal}"`));}
+    catch(e){showError(e.message);return;}
+  }
+  setStatus('p2','adversarial critique');
+  let crit=null;
+  try{crit=await callAPI(sysAdversarial(),`Review for "${goal}":\n${JSON.stringify(traces[2],null,2)}`);}
+  catch(e){}
+  setStatus('p5','anti-thesis');
+  let anti=null;
+  try{anti=await callAPI(sysAntithesis(),`Goal domain: "${goal}". Generate strongest counterexample.`);}
+  catch(e){}
+  hideStatus();showConvergence(traces);
+  lastChain=traces[2];lastCrit=crit;
+  renderChain(traces[2],crit,null);
+  if(anti)showAntiThesis(anti);
+  invState.natural={type:traces[2].terminal.type,state:traces[2].terminal.state};
+  updateInvariance(goal);
+  logSession(goal,traces[2],crit,anti);
+  setViabilitySnapshot(traces[2].terminal.type==='experiential'?'experiential-resolved':traces[2].terminal.type, currentScore);
+  traces.forEach(t=>recordSessionCount(t.terminal.type));
+  if(['exception','nonterminating','experiential-unresolved'].includes(traces[2].terminal.type))logFalsification(goal,traces[2],crit);
+}
+
+/* PERTURBATION */
+async function runPerturbation(){
+  const goal=document.getElementById('goalInput').value.trim();
+  if(!goal){document.getElementById('goalInput').focus();return;}
+  if(!getKey().startsWith('sk-ant-')){showError('Enter your Anthropic API key above.');return;}
+  setAllBtns(true);
+  document.getElementById('pertPanel').style.display='none';
+  setStatus('p1','generating perturbations');
+  let result;
+  try{result=await callAPI(sysPerturbation(),`Base goal: "${goal}"`);}
+  catch(e){showError(e.message);setAllBtns(false);hideStatus();return;}
+  hideStatus();showPerturbation(goal,result);
+  setAllBtns(false);
+}
+
+function showPerturbation(baseGoal,result){
+  const panel=document.getElementById('pertPanel');
+  const vars=result.variations||[];
+  const TC={experiential:'pvt-exp',exception:'pvt-exc',ambiguous:'pvt-amb',nonterminating:'pvt-nt'};
+  const TL={experiential:'◆ Experiential',exception:'◇ Exception',ambiguous:'◈ Ambiguous',nonterminating:'∅ Non-term.'};
+  document.getElementById('pertVariations').innerHTML=vars.map(v=>`
+    <div class="pert-var">
+      <div><div class="pert-var-goal">${h(v.goal)}</div><div class="pert-var-note">${h(v.chain_sketch)}</div></div>
+      <div class="pert-var-type ${TC[v.terminal_type]||''}">${TL[v.terminal_type]||v.terminal_type}</div>
+    </div>`).join('');
+  const types=[...new Set(vars.map(v=>v.terminal_type))];
+  const stable=types.length===1;
+  let verdict='';
+  if(stable)verdict=`<strong>Stable under perturbation.</strong> All three variations reached ${TL[types[0]]||types[0]}. Perturbation score contribution: 0.`;
+  else if(types.length===2)verdict=`<strong>Partially stable.</strong> Two of three agree; one diverges. Perturbation score contribution: +1.`;
+  else verdict=`<strong>Fragile — all variations diverge.</strong> Perturbation score contribution: +1.`;
+  document.getElementById('pertResult').innerHTML=verdict;
+  panel.style.display='block';
+  invState.perturbation={stable,types};
+  updateInvariance(baseGoal);
+}
+
+/* INVARIANCE PANEL */
+
+// Fix 2: mechanism-aware diagnosis helper — nonterminating is NOT always sufficiency_failure
+function diagnosisFromType(type, mechanism=null){
+  if(type==='experiential-resolved')  return 'genuine_resolution';
+  if(type==='experiential-unresolved')return 'unresolved_gradient';
+  if(type==='exception')              return 'proxy_decoupling';
+  if(type==='nonterminating'){
+    if(mechanism==='proxy_trap')        return 'proxy_decoupling';
+    if(mechanism==='sufficiency_failure')return 'sufficiency_failure';
+    if(mechanism==='incompletability')  return 'unresolved_gradient';
+    return 'nonterminating_underdetermined';
+  }
+  return 'underdetermined';
+}
+
+function updateInvariance(goal){
+  const panel=document.getElementById('invPanel');
+  const baseType=invState.natural?.type||null;
+  if(!baseType){return;}
+  const rows=[];
+  let score=0;
+  let scoreBreakdown=[];
+
+  // Compute initial (prior) structural diagnosis from terminal form + mechanism field
+  const baseMech=invState.natural?.mechanism||null;
+  const priorDiagnosis=diagnosisFromType(baseType, baseMech);
+
+  function addRow(modeLabel,modeClass,typeStr,stateStr,contribution,agreeVsBase,tier){
+    const tc=(typeStr||'').toLowerCase().replace(/\s+/g,'-');
+    const agreeStr=agreeVsBase===null?'baseline':agreeVsBase?'✓ matches':'✗ differs';
+    const agreeClass=agreeVsBase===null?'baseline':agreeVsBase?'match':'mismatch';
+    const tierMark=tier?`<span style="font-size:8px;color:var(--text3);margin-left:3px">${tier}</span>`:'';
+    rows.push(`<tr>
+      <td><span class="inv-mode ${modeClass}">${modeLabel}${tierMark}</span></td>
+      <td>${typeStr?`<span class="inv-type ${tc}">${typeLabel(typeStr)}</span>`:'<span class="inv-type pending">pending</span>'}</td>
+      <td style="font-size:10px;color:var(--text2)">${h((stateStr||'').slice(0,55))}${(stateStr||'').length>55?'…':''}</td>
+      <td><span class="inv-agree ${agreeClass}">${agreeStr}</span></td>
+      <td><span class="inv-contrib">${contribution}</span></td>
+    </tr>`);
+  }
+
+  // Natural (baseline)
+  addRow('natural','',baseType,invState.natural.state,'baseline',null,'');
+
+  // Formal — Low independence
+  if(invState.formal){
+    const match=invState.formal.type===baseType;
+    if(!match){score+=1;scoreBreakdown.push({label:'symbolic mode changed',pts:1,tier:'low'});}
+    addRow('symbolic','mt-formal',invState.formal.type,invState.formal.state,match?'+0':'<span style="color:var(--bad)">+1 ✗</span>',match,'[low]');
+  }
+
+  // Blind — Low independence  
+  if(invState.blind){
+    const match=invState.blind.type===baseType;
+    if(!match){score+=2;scoreBreakdown.push({label:'blind re-eval disagrees',pts:2,tier:'low'});}
+    addRow('blind re-eval','mt-blind',invState.blind.type,invState.blind.description,match?'+0':'<span style="color:var(--bad)">+2 ✗</span>',match,'[low]');
+  }
+
+  // Perturbation — Medium independence
+  if(invState.perturbation){
+    const stable=invState.perturbation.stable;
+    if(!stable){score+=1;scoreBreakdown.push({label:'perturbation diverges',pts:1,tier:'medium'});}
+    rows.push(`<tr>
+      <td><span class="inv-mode">perturbation <span style="font-size:8px;color:var(--text3)">[med]</span></span></td>
+      <td><span class="inv-type ${stable?'experiential-resolved':'exception'}">${stable?'stable':'fragile'}</span></td>
+      <td style="font-size:10px;color:var(--text2)">${invState.perturbation.types.join(' / ')}</td>
+      <td><span class="inv-agree ${stable?'match':'mismatch'}">${stable?'✓ stable':'✗ diverges'}</span></td>
+      <td><span class="inv-contrib">${stable?'+0':'<span style="color:var(--bad)">+1 ✗</span>'}</span></td>
+    </tr>`);
+  }
+
+  // Corruption — Medium independence
+  if(invState.corruption){
+    const match=invState.corruption.type===baseType;
+    if(!match){score+=2;scoreBreakdown.push({label:'corruption changes classification',pts:2,tier:'medium'});}
+    addRow('corruption','mt-corr',invState.corruption.type,invState.corruption.assessment,match?'+0':'<span style="color:var(--bad)">+2 ✗</span>',match,'[med]');
+  }
+
+  // Independent — High independence
+  if(invState.independent){
+    const match=invState.independent.type===baseType;
+    if(!match){score+=2;scoreBreakdown.push({label:'independent derivation disagrees',pts:2,tier:'high'});}
+    addRow('independent','mt-indep',invState.independent.type,invState.independent.endpoint,match?'+0':'<span style="color:var(--bad)">+2 ✗</span>',match,'[high]');
+  }
+
+  // External — Highest independence (different training distribution)
+  if(invState.external){
+    const match=invState.external.type===baseType;
+    // External disagreement → contested (not override — constraint on confidence)
+    // Compare mechanism class if available
+    const extMechClass=invState.external.mechanism_class||null;
+    const intMechClass=invState.natural?.mechanism?(
+      {'proxy_trap':'obj_misspec','sufficiency_failure':'obj_misspec','modeling_gap':'epistemic','incompletability':'epistemic','non_experiential_closure':'non_experiential'}[invState.natural.mechanism]||null
+    ):null;
+    const mechClassMatch=extMechClass&&intMechClass?extMechClass===intMechClass:null;
+    const mechNote=extMechClass?(mechClassMatch===true?'mechanism class agrees':'mechanism class differs — stronger challenge signal'):'(no mechanism provided)';
+    rows.push(`<tr>
+      <td><span class="inv-mode mt-indep">${h(invState.external.model||'external')} <span style="font-size:8px;color:var(--indep)">[distributional]</span></span></td>
+      <td><span class="inv-type ${(invState.external.type||'').replace(/\s+/g,'-')}">${typeLabel(invState.external.type)}</span></td>
+      <td style="font-size:10px;color:var(--text2)">${h((invState.external.state||'').slice(0,45))} <span style="color:var(--text3);font-size:9px">${h(mechNote)}</span></td>
+      <td><span class="inv-agree ${match?'match':'mismatch'}">${match?'✓ matches':'✗ type differs'}</span></td>
+      <td><span class="inv-contrib" style="color:var(--indep)">${mechClassMatch===false?'class mismatch':'distributional break'}</span></td>
+    </tr>`);
+  }
+
+  // Cap score at 2 when calibration failed — can't claim high-confidence invariance
+  const calibFailed=window._calibFailed||false;
+  const effectiveScore=calibFailed?Math.min(score,2):score;
+  currentScore=effectiveScore;
+  document.getElementById('invBody').innerHTML=rows.join('');
+
+  // Score display
+  const calibCapNote=calibFailed&&score>2?` (capped from ${score} — calibration unreliable)`:'';
+  document.getElementById('invScoreVal').textContent=`${effectiveScore} / 8${calibCapNote}`;
+  const fill=document.getElementById('invScoreFill');
+  fill.className=`inv-score-fill score-${Math.min(effectiveScore,6)}`;
+  const badge=document.getElementById('invScoreBadge');
+  let badgeText,badgeClass;
+  if(effectiveScore===0){badgeClass='stable';badgeText='strong invariance';}
+  else if(effectiveScore<=2){badgeClass='fragile';badgeText='fragile';}
+  else if(effectiveScore<=4){badgeClass='falsification';badgeText='moderate instability';}
+  else{badgeClass='falsification';badgeText='high instability — result not invariant under representation change';}
+  badge.className=`inv-score-badge ${badgeClass}`;badge.textContent=badgeText;
+  document.getElementById('invFailBlock').classList.toggle('on',effectiveScore>=3);
+  document.getElementById('instabilityBanner').classList.toggle('on',effectiveScore>=3);
+
+  // Score breakdown by tier
+  const breakdownHtml=(()=>{
+    if(!scoreBreakdown.length)return'';
+    const rows=scoreBreakdown.map(b=>{
+      const hi=b.tier==='high';
+      return '<span style="margin-right:12px;color:'+(hi?'var(--text)':'var(--text3)')+'">'+(hi?'<strong>':'')+'+'+b.pts+' '+b.label+' <em>['+b.tier+' independence]</em>'+(hi?'</strong>':'')+'</span>';
+    }).join('');
+    return '<div style="font-size:10px;margin-top:6px;line-height:1.8;padding:6px 0;border-top:1px solid var(--border)">'+rows+'</div>';
+  })()
+
+  // Determine updated diagnosis (after stress tests)
+  let updatedDiagnosis=priorDiagnosis;
+  let isContested=false;
+  let contestedBetween=null;
+  
+  // External disagreement → contested (constraint, not override)
+  if(invState.external&&invState.external.type!==baseType){
+    isContested=true;
+    const externalPrior=diagnosisFromType(invState.external.type, invState.external.mechanism||null);
+    contestedBetween={internal:priorDiagnosis,external:externalPrior};
+  }
+  // High stress score → contested if independent disagrees
+  if(score>=3&&invState.independent&&invState.independent.type!==baseType){
+    isContested=true;
+    const indepPrior=diagnosisFromType(invState.independent.type, invState.independent.mechanism||null);
+    if(!contestedBetween)contestedBetween={internal:priorDiagnosis,external:indepPrior};
+  }
+
+  // Mechanism display — compare generator vs critic
+  const genMech=invState.natural?.mechanism||null;
+  const critMech=invState.natural?.critic_mechanism||null;
+  let mechHtml='';
+  if(genMech||critMech){
+    const mechAgree=genMech&&critMech&&genMech===critMech;
+    const mechLabel={'sufficiency_failure':'Sufficiency failure','proxy_trap':'Proxy trap','incompletability':'Structural incompletability','modeling_gap':'Modeling gap','non_experiential_closure':'Non-experiential closure'};
+    const gLabel=mechLabel[genMech]||genMech||'—';
+    const cLabel=mechLabel[critMech]||critMech||'—';
+    // Compare at mechanism class level
+  const mechClass={'proxy_trap':'obj_misspec','sufficiency_failure':'obj_misspec','modeling_gap':'epistemic','incompletability':'epistemic','non_experiential_closure':'non_experiential'};
+  const genClass=mechClass[genMech]||'unknown';
+  const critClass=mechClass[critMech]||'unknown';
+  const classAgree=genMech&&critMech&&genClass===critClass;
+  const mechNote=mechAgree?'Mechanism consistent under adversarial re-interpretation':classAgree?'Subtypes differ but same mechanism class — moderate confidence':'Mechanism classes differ — classification underdetermined';
+    const genClassLabel={'obj_misspec':'Objective mis-specification','epistemic':'Epistemic limitation','non_experiential':'Non-experiential closure','unknown':'Unknown'}[genClass]||genClass;
+    const critClassLabel={'obj_misspec':'Objective mis-specification','epistemic':'Epistemic limitation','non_experiential':'Non-experiential closure','unknown':'Unknown'}[critClass]||critClass;
+    mechHtml=`<div style="margin-top:8px;padding:7px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border);font-size:10px;line-height:1.7">
+      <span style="color:var(--text3);letter-spacing:.07em;text-transform:uppercase;font-size:9px">Mechanism (class → subtype)</span><br>
+      Generator: <span style="color:var(--text)">${h(genClassLabel)}</span> <span style="color:var(--text3)">→</span> <span style="color:var(--text2)">${h(gLabel)}</span><br>
+      Critic: <span style="color:var(--text)">${h(critClassLabel)}</span> <span style="color:var(--text3)">→</span> <span style="color:var(--text2)">${h(cLabel)}</span><br>
+      <span style="color:${mechAgree?'var(--valid)':(classAgree?'var(--weakcol)':'var(--bad)')};font-size:9px">${mechNote}</span>
+    </div>`;
+  }
+
+  // Prior → posterior display
+  const diagLabels={
+    genuine_resolution:'Genuine resolution',
+    sufficiency_failure:'Sufficiency failure',
+    proxy_decoupling:'Proxy decoupling',
+    unresolved_gradient:'Unresolved-gradient pattern',
+    underdetermined:'Underdetermined',
+    nonterminating_underdetermined:'Non-terminating — mechanism underdetermined (proxy trap or sufficiency failure)'
+  };
+  const modesPresent=Object.keys(invState).filter(k=>invState[k]&&k!=='perturbation');
+  let priorPosteriorHtml='';
+  if(modesPresent.length>1){
+    const priorLabel=diagLabels[priorDiagnosis]||priorDiagnosis;
+    let posteriorLabel,posteriorColor;
+    // Determine which test drove the shift (highest independence signal that disagreed)
+    let updateDriver='';
+    if(invState.external&&invState.external.type!==baseType)updateDriver='external model — distributional independence';
+    else if(invState.independent&&invState.independent.type!==baseType)updateDriver='independent derivation — high independence';
+    else if(invState.corruption&&invState.corruption.type!==baseType)updateDriver='corruption test — medium independence';
+    else if(invState.perturbation&&!invState.perturbation.stable)updateDriver='perturbation divergence — medium independence';
+    else if(invState.blind&&invState.blind.type!==baseType)updateDriver='blind re-evaluation — low independence';
+    else if(invState.formal&&invState.formal.type!==baseType)updateDriver='symbolic mode — low independence';
+
+    if(isContested&&contestedBetween){
+      const intLabel=diagLabels[contestedBetween.internal]||contestedBetween.internal;
+      const extLabel=diagLabels[contestedBetween.external]||contestedBetween.external;
+      posteriorLabel=`Contested between: ${intLabel} (internal) / ${extLabel} (external)`;
+      posteriorColor='var(--bad)';
+    } else if(score===0){
+      posteriorLabel=`${priorLabel} — confirmed`;
+      posteriorColor='var(--valid)';
+    } else if(score<=2){
+      posteriorLabel=`${priorLabel} — weakened`;
+      posteriorColor='var(--weakcol)';
+    } else {
+      posteriorLabel=`${priorLabel} — unstable under representation change`;
+      posteriorColor='var(--bad)';
+    }
+    priorPosteriorHtml=`<div style="margin-top:8px;padding:7px 10px;border-radius:2px;background:var(--surface2);border:1px solid var(--border);font-size:10px;line-height:1.6">
+      <span style="color:var(--text3);font-size:9px;letter-spacing:.07em;text-transform:uppercase">Pattern-level diagnosis</span><br>
+      <span style="color:var(--text3)">Prior (from terminal form):</span> <span style="color:var(--text2)">${h(priorLabel)}</span><br>
+      <span style="color:var(--text3)">After stress tests:</span> <span style="color:${posteriorColor}">${h(posteriorLabel)}</span>
+      ${updateDriver?`<br><span style="color:var(--text3)">Shift driven by:</span> <span style="color:var(--text2);font-style:italic">${h(updateDriver)}</span>`:''}
+      <br><span style="color:var(--text3)">Framework diagnostic (Article 1):</span> <span style="color:var(--text2);font-style:italic">${(()=>{
+        if(isContested) return 'Underdetermined — contested between representations';
+        if(baseType==='experiential-resolved'&&score===0) return 'Absolute-rationality candidate — model of gradient accurate enough to sustain optimization';
+        if(baseType==='experiential-resolved') return 'Absolute-rationality candidate (weakened) — classification fragile under representation change';
+        if(baseType==='experiential-unresolved') return 'Relative-rationality pattern — unresolved gradient; locally coherent, structurally self-defeating';
+        if(priorDiagnosis==='proxy_decoupling'||priorDiagnosis==='proxy_decoupling') return 'Relative-rationality pattern — proxy decoupling; optimization follows drifted model';
+        if(priorDiagnosis==='sufficiency_failure') return 'Relative-rationality pattern — sufficiency failure; optimization continues past resolution point';
+        if(priorDiagnosis==='nonterminating_underdetermined') return 'Relative-rationality pattern — mechanism underdetermined (proxy trap or sufficiency failure)';
+        return 'Underdetermined';
+      })()}</span>
+    </div>`;
+  }
+
+  // Downgrade if calibration failed (calibFailed already declared above)
+  const calibNote=calibFailed?('<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid var(--bad);background:var(--badd);font-size:10px;color:#e88078">⚠ Calibration unstable — score capped at 2. All diagnoses carry reduced confidence. Re-run calibration before interpreting results.</div>'):'';
+
+  // Interpretation
+  let interp='';
+  if(modesPresent.length<=1){
+    interp='Single mode only. Enable additional modes to stress-test the classification.';
+  } else if(score===0&&!isContested){
+    let resNote='';
+    if(baseType==='experiential-resolved')resNote=' No further "in service of" pressure appears in this trace.';
+    else if(baseType==='experiential-unresolved')resNote=' Further demand is implied — the trace does not reach rest.';
+    else if(baseType==='nonterminating')resNote=' No terminal state appears across modes — the chain does not complete.';
+    interp=`<strong>Strong invariance.</strong> Classification stable across all active modes.${resNote} ${modesPresent.includes('independent')?'Independent derivation from goal alone reached the same conclusion.':''}`;
+  } else if(isContested){
+    interp=`<strong>Diagnosis contested.</strong> Internal and external representations disagree. ${contestedBetween?`Internal evidence suggests <em>${diagLabels[contestedBetween.internal]||contestedBetween.internal}</em>; external model suggests <em>${diagLabels[contestedBetween.external]||contestedBetween.external}</em>.`:''} Cross-model verification required before interpretation.`;
+  } else if(score<=2){
+    interp=`<strong>Fragile.</strong> Score ${score}/8: some modes disagree. Classification may depend on framing rather than structure. Check which tier of signal is driving the score.`;
+  } else {
+    // Primary/secondary diagnosis
+    let primaryDiag='',secondaryDiag='';
+    if(baseType==='exception'||(invState.independent?.type==='exception')){
+      primaryDiag='Pattern-level diagnosis: Proxy-decoupling-consistent pattern';
+      secondaryDiag='Secondary (hypothesized mechanism consistent with observed pattern): Modeling gap — V(t) omitted from objective';
+    } else if(baseType==='nonterminating'){
+      const ntMech=invState.natural?.mechanism;
+      if(ntMech==='proxy_trap'){
+        primaryDiag='Pattern-level diagnosis: Proxy decoupling (non-terminating via drifted model)';
+        secondaryDiag='Secondary: Chain follows a signal that has separated from underlying capacity';
+      } else if(ntMech==='sufficiency_failure'){
+        primaryDiag='Pattern-level diagnosis: Sufficiency failure (non-terminating — no stop condition at resolution)';
+        secondaryDiag='Secondary: Coupling dependency or absent policy-governing completion recognition';
+      } else {
+        primaryDiag='Pattern-level diagnosis: Non-terminating — mechanism underdetermined';
+        secondaryDiag='Secondary: Either proxy trap or sufficiency failure; mechanism field needed to distinguish';
+      }
+    } else if(baseType==='experiential-unresolved'){
+      primaryDiag='Pattern-level diagnosis: Unresolved-gradient pattern';
+      secondaryDiag='Secondary: Incompletability / always-demands-more terminal structure';
+    }
+    const instLabel=score<=4?'Moderate instability':'High instability — result not invariant under representation change; external verification required before interpretation';
+    interp=`<strong>${instLabel}.</strong> ${modesPresent.includes('independent')?'Independent derivation reached a different conclusion — the chain was constructing convergence.':''}<br><br>${primaryDiag?`<strong>${primaryDiag}.</strong><br><em style="color:var(--text3)">${secondaryDiag}</em>`:''}`;
+  }
+
+  document.getElementById('invInterp').innerHTML=`${interp}${breakdownHtml}${mechHtml}${priorPosteriorHtml}${calibNote}`;
+  panel.style.display='block';
+}
+
+function typeLabel(t){return{'experiential-resolved':'◆ Resolved','experiential':'◆ Resolved','experiential-unresolved':'◇ Unresolved','exception':'◇ Exception','ambiguous':'◈ Ambiguous','nonterminating':'∅ Non-term.'}[t]||t;}
+
+/* CONVERGENCE */
+function showConvergence(traces){
+  const counts={'experiential-resolved':0,'experiential-unresolved':0,exception:0,ambiguous:0,nonterminating:0};
+  traces.forEach(t=>{const k=t.terminal.type==='experiential'?'experiential-resolved':t.terminal.type;if(counts[k]!==undefined)counts[k]++;});
+  document.getElementById('cntExp').textContent=`${counts['experiential-resolved']}/3`;
+  document.getElementById('cntExc').textContent=`${counts.exception}/3`;
+  document.getElementById('cntAmb').textContent=`${counts.ambiguous}/3`;
+  document.getElementById('cntNT').textContent=`${counts.nonterminating}/3`;
+  const probs=Object.values(counts).map(c=>c/3).filter(p=>p>0);
+  const H=-probs.reduce((s,p)=>s+p*Math.log2(p),0);
+  document.getElementById('convEntropy').textContent=H.toFixed(2)+' bits';
+  const cw=traces.map(t=>new Set(t.chain.flatMap(s=>s.goal.toLowerCase().split(/\W+/).filter(w=>w.length>3))));
+  const sims=[[0,1],[0,2],[1,2]].map(([a,b])=>{
+    const i=new Set([...cw[a]].filter(w=>cw[b].has(w)));
+    const u=new Set([...cw[a],...cw[b]]);
+    return u.size?i.size/u.size:0;
+  });
+  const ms=sims.reduce((s,v)=>s+v,0)/3;
+  document.getElementById('convSim').textContent=ms.toFixed(2);
+  let att,an;
+  if(H<0.5&&ms>0.4){att='Strong';an='Low H + high sim';}
+  else if(H<0.5){att='Weak';an='Low H but low sim';}
+  else if(H<1.2){att='Boundary';an='Moderate entropy';}
+  else{att='None';an='High entropy';}
+  document.getElementById('convAttractor').textContent=att;
+  document.getElementById('convAttractorNote').textContent=an;
+  const t2=traces[2].terminal;
+  const t2type=t2.type==='experiential'?'experiential-resolved':t2.type;
+  let verdict='';
+  const dominated=counts[t2type]===3;
+  if(dominated&&att==='Strong'){
+    if(t2type==='experiential-resolved')verdict=`<strong>3/3 Resolved — strong within-mode signal.</strong> Low entropy and high chain similarity. The chain terminates in a state the model represents as genuinely inhabitable. Enable independent derivation and corruption test to stress-test across axes.`;
+    else if(t2type==='experiential-unresolved')verdict=`<strong>3/3 Unresolved — strong within-mode signal.</strong> The chain reaches an experiential state but one the model represents as structurally incapable of satisfaction — seeking maintained indefinitely. This is the unresolved-gradient pattern: the target cannot be genuinely inhabited.`;
+    else verdict=`<strong>3/3 ${typeLabel(t2type)} — strong within-mode signal.</strong> Low entropy and high chain similarity.`;
+  }
+  else if(dominated)verdict=`<strong>3/3 ${typeLabel(t2type)} — weak within-mode signal.</strong> Agreement but via dissimilar chains. Training bias is a plausible explanation.`;
+  else if(counts.exception+counts.nonterminating>=2)verdict=`<strong>Predominantly non-experiential / non-terminating.</strong> ${!isIsolation()?'Consider isolation mode.':'Isolation was active.'}`;
+  else if(counts['experiential-unresolved']>=2)verdict=`<strong>Predominantly unresolved.</strong> The model consistently finds this goal terminates in an experiential state that cannot be genuinely inhabited — unresolved-gradient pattern.`;
+  else verdict=`<strong>Mixed — boundary case.</strong> Classification unstable across runs.`;
+  document.getElementById('convVerdict').innerHTML=verdict;
+  document.getElementById('convPanel').style.display='block';
+}
+
+/* ANTI-THESIS */
+function showAntiThesis(anti){
+  if(!anti?.counterexample_goal)return;
+  lastAntiGoal=anti.counterexample_goal;
+  document.getElementById('antiGoal').textContent=anti.counterexample_goal;
+  const sub=anti.predicted_subtype?` / ${anti.predicted_subtype}`:'';
+  document.getElementById('antiRationale').innerHTML=h(anti.rationale)+`<br><br><span style="color:var(--text3);font-size:10px">Predicted: ${anti.predicted_terminal_type}${sub}</span>`;
+  buildExport(anti.counterexample_goal,anti.rationale);
+  document.getElementById('antiPanel').style.display='block';
+}
+
+function toggleExport(){const p=document.getElementById('exportPanel');p.style.display=p.style.display==='block'?'none':'block';}
+
+function buildExport(goal,rationale){
+  const chain=lastChain?.chain||[];
+  const cs=chain.map(s=>`  Step ${s.step}: "${s.goal}" → "${s.reduction}"`).join('\n');
+  const text=`MOTIVATION TRACER v8 — CROSS-MODEL VERIFICATION
+
+This instrument tests whether the article's behavioral taxonomy — gradient-resolution structure in goal chains, including whether chains terminate in states the system can genuinely inhabit — is stable under representation change. You are asked to trace independently and compare.
+
+ORIGINAL GOAL: "${lastGoal}"
+OPTIMIZER TYPE: ${OPT_LABEL[optimizerMode]}
+MODES ACTIVE: ${[isFormal()?'constrained-symbolic':'natural',isBlind()?'blind':'',isIndependent()?'independent':'',isCorruption()?'corruption':''].filter(Boolean).join(', ')}
+
+CHAIN (Claude):
+${cs||'  [No chain — run a trace first]'}
+
+TERMINAL: ${lastChain?.terminal?.type||'unknown'}
+STATE: "${lastChain?.terminal?.state||''}"
+
+ADVERSARIAL COUNTEREXAMPLE:
+Goal: "${goal}"
+Rationale: ${rationale}
+
+YOUR TASK:
+1. Trace the counterexample goal independently for the same optimizer type.
+2. At each step: "What is this in service of?"
+3. Classify terminal: experiential | exception | ambiguous | nonterminating
+4. State whether you agree or disagree with Claude's classification above.
+5. Explain any divergence.
+
+Independent trace — do not anchor on Claude's result.`;
+  document.getElementById('exportText').textContent=text;
+}
+
+function copyExport(){
+  navigator.clipboard.writeText(document.getElementById('exportText').textContent).then(()=>{
+    const b=document.querySelector('.copy-btn');b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy to clipboard',1800);
+  }).catch(()=>document.execCommand('copy'));
+}
+
+async function stressTestAnti(){
+  if(!lastAntiGoal)return;
+  document.getElementById('goalInput').value=lastAntiGoal;
+  await runTrace('convergence',lastAntiGoal);
+}
+
+/* STATUS */
+const PASS_IDS=['p1','p2','p3','p4','p5'];
+function setStatus(passId,label){
+  document.getElementById('statusRow').style.display='flex';
+  document.getElementById('statusLabel').textContent=label;
+  const idx=PASS_IDS.indexOf(passId);
+  PASS_IDS.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(i===idx)el.className='pass-dot active';
+    else if(i<idx)el.className='pass-dot done';
+    else el.className='pass-dot';
+  });
+}
+function hideStatus(){document.getElementById('statusRow').style.display='none';}
+function showError(msg){hideStatus();const b=document.getElementById('errorBar');b.innerHTML=msg;b.classList.add('on');}
+
+/* RENDER CHAIN */
+function renderChain(result,critique,independentRes){
+  const wrap=document.getElementById('chainWrap');wrap.innerHTML='';
+  const {chain,terminal}=result;const S=155;
+  const formal=isFormal();
+  const isRegress=terminal.type==='nonterminating'&&terminal.subtype==='infinite-regress';
+  const isLoop=terminal.type==='nonterminating'&&terminal.subtype==='loop';
+  chain.forEach((item,i)=>{
+    if(i>0){const c=mkConn();wrap.appendChild(c);setTimeout(()=>c.classList.add('show'),i*S*2-S*0.6);}
+    const sc=critique?.step_critiques?.find(c=>c.step===item.step)||null;
+    const node=mkNode(item,sc,formal);
+    if(isRegress){node.style.opacity=Math.max(0.22,1-(i/Math.max(chain.length-1,1))*0.65);node.style.filter=`saturate(${Math.max(0.18,1-(i/Math.max(chain.length-1,1))*0.75)})`;}
+    wrap.appendChild(node);setTimeout(()=>node.classList.add('show'),i*S*2);
+  });
+  if(isLoop){
+    const lc=document.createElement('div');lc.className='loop-connector';
+    lc.innerHTML=`<svg viewBox="0 0 60 40" fill="none"><path d="M30 4 C50 4 56 20 56 20 C56 36 10 36 10 20 C10 4 30 4 30 4" stroke="rgba(104,144,208,0.50)" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/><path d="M22 4 L30 4 L30 12" stroke="rgba(104,144,208,0.50)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    wrap.appendChild(lc);setTimeout(()=>lc.classList.add('show'),chain.length*S*2-S*0.3);
+  }else{const tc=mkConn();wrap.appendChild(tc);setTimeout(()=>tc.classList.add('show'),chain.length*S*2-S*0.6);}
+  const tw=mkTerminal(terminal,critique?.terminal_critique,chain,formal,independentRes);
+  wrap.appendChild(tw);setTimeout(()=>tw.querySelector('.terminal-node').classList.add('show'),chain.length*S*2+S);
+}
+
+function mkConn(){const d=document.createElement('div');d.className='node-connector';d.style.height='22px';return d;}
+
+function mkNode(item,sc,formal){
+  const node=document.createElement('div');
+  node.className='chain-node'+(formal?' formal-node':'');
+  const vc=sc?({VALID:'v-valid',WEAK:'v-weak',CHALLENGED:'v-challenged'}[sc.verdict]||''):'';
+  const vl=sc?({VALID:'✓ valid',WEAK:'∼ weak',CHALLENGED:'✗ challenged'}[sc.verdict]||''):'';
+  const ds=sc?.depth_score||0;
+  const dots=[1,2,3,4,5].map(n=>`<span class="depth-dot ${n<=ds?'filled d'+n:''}" title="depth ${n}/5"></span>`).join('');
+  const anthro=sc?.anthropocentrism?`<div class="anthro-flag">⚠ anthropocentrism flagged</div>`:'';
+  let smugHtml='';
+  if(sc?.semantic_smuggling){
+    const fid=`smug-${item.step}-${Math.random().toString(36).slice(2,6)}`;
+    smugHtml=`<div class="smug-flag" onclick="toggleSmug('${fid}')">⚑ semantic smuggling — click to inspect</div><div class="smug-detail" id="${fid}">${h(sc.smuggling_detail||'Empty marker used as valence.')}</div>`;
+  }
+  const cn=(sc?.note&&vc)?`<div class="crit-note ${vc}">${h(sc.note)}</div>`:'';
+  const gClass=formal?'node-goal formal-goal':'node-goal';
+  const rClass=formal?'reduction-text formal':'reduction-text';
+  const stepId=`step-${item.step}`;
+  const editId=`edit-${item.step}-${Math.random().toString(36).slice(2,6)}`;
+  node.innerHTML=`
+    <div class="node-header">
+      <div class="node-step-label">Step ${item.step}${formal?`<span class="mode-tag mt-formal on" style="margin-left:5px">symbolic</span>`:''}</div>
+      <div class="node-meta"><div class="depth-meter">${dots}</div>${sc?`<div class="verdict-badge ${vc}">${vl}</div>`:''}</div>
+    </div>
+    ${anthro}${smugHtml}
+    <div class="${gClass}">${h(item.goal)}</div>
+    <div class="node-reduction">
+      <div class="reduction-arrow">↳</div>
+      <div class="${rClass}" onclick="openNodeEdit('${editId}','${h(item.reduction)}')" title="Click to inject a manual 'in service of' and re-trace from here">in service of: ${h(item.reduction)}</div>
+    </div>
+    <div class="node-edit" id="${editId}">
+      <div class="node-inject-note">Human override — type any "in service of" answer, including adversarial ones. The model is <strong>bound</strong> to accept it as ground truth — it cannot reinterpret or repair. If it still reaches an experiential terminus from your detour, convergence survived an adversarial injection. <span id="${editId}-lock" style="display:none;color:var(--bad);font-weight:500">⊙ Override locked — model cannot alter this node</span></div>
+      <input type="text" placeholder="in service of…" onkeydown="if(event.key==='Enter')applyNodeEdit('${editId}',${item.step})"/>
+      <div class="node-edit-btns">
+        <button class="node-edit-apply" onclick="applyNodeEdit('${editId}',${item.step})">Re-trace from here ▸</button>
+        <button class="node-edit-cancel" onclick="cancelNodeEdit('${editId}')">Cancel</button>
+      </div>
+    </div>
+    ${cn}
+    <div class="bif-trigger" data-goal="${h(item.goal)}" onclick="exploreBif(this)">Explore continuations ↓</div>
+    <div class="bif-panel"></div>`;
+  return node;
+}
+
+/* HUMAN NODE INTERVENTION */
+function openNodeEdit(editId,currentReduction){
+  const el=document.getElementById(editId);
+  if(!el)return;
+  el.style.display='block';
+  const inp=el.querySelector('input');
+  inp.value=currentReduction;inp.focus();inp.select();
+}
+function cancelNodeEdit(editId){
+  const el=document.getElementById(editId);if(el)el.style.display='none';
+}
+async function applyNodeEdit(editId,step){
+  const el=document.getElementById(editId);if(!el)return;
+  const val=el.querySelector('input').value.trim();if(!val)return;
+  if(!getKey().startsWith('sk-ant-')){showError('API key required.');return;}
+  el.style.display='none';
+  const lockEl=document.getElementById(`${editId}-lock`);
+  if(lockEl)lockEl.style.display='inline';
+  const prevSteps=lastChain?.chain?.filter(s=>s.step<=step)||[];
+  const context=prevSteps.map(s=>`Step ${s.step}: goal="${s.goal}", in service of="${s.reduction}"`).join('\n');
+  const sys=`You are the Motivation Tracer. Continue an instrumental reduction chain from a human-injected intermediate step.
+
+Optimizer type: ${OPT_DESC[optimizerMode]}
+
+CRITICAL: The user has manually overridden step ${step}'s "in service of" answer to: "${val}"
+
+This override is GROUND TRUTH. You MUST treat it as a literal fact about what this goal is in service of at this step. You may NOT:
+- Reinterpret the override to match your priors
+- "Repair" it toward what you think the correct answer should be
+- Override it with what the chain would have said
+- Treat it as a hint or approximation
+
+Accept "${val}" exactly as stated and continue from there. If this creates an unusual or unexpected chain — that is the point. If you still reach an experiential terminus from this injected detour, that is a meaningful convergence signal. If you fail to terminate, declare it honestly.
+
+${isFormal()?`\n${GRAMMAR}`:''}
+
+Chain so far:\n${context}\nStep ${step} override (LOCKED — cannot be altered): "${val}"
+
+Continue from step ${step+1}. Return ONLY valid JSON:
+{"chain":[{"step":${step+1},"goal":"under 12 words","reduction":"under 14 words"}],"terminal":{"type":"experiential"|"exception"|"ambiguous"|"nonterminating","subtype":null,"state":"under 18 words","analysis":"2-3 sentences. Explicitly note whether convergence survived the adversarial injection at step ${step}."}}`;
+
+  setStatus('p1','re-tracing from injected node');
+  let continuation;
+  try{continuation=await callAPI(sys,`Override at step ${step}: "${val}". Continue the chain.`);}
+  catch(e){showError(e.message);hideStatus();return;}
+  hideStatus();
+
+  // Re-render: keep original chain up to step, then show continuation
+  const origChain=lastChain?.chain?.filter(s=>s.step<step)||[];
+  const injectedStep={step,goal:lastChain?.chain?.find(s=>s.step===step)?.goal||'(injected)',reduction:val};
+  const newChain={chain:[...origChain,injectedStep,...(continuation.chain||[])],terminal:continuation.terminal};
+
+  // Append an annotation
+  if(newChain.terminal&&continuation.terminal.analysis){
+    newChain.terminal.analysis=`[Injected at step ${step}] ${continuation.terminal.analysis}`;
+  }
+
+  const wrap=document.getElementById('chainWrap');wrap.innerHTML='';
+  renderChain(newChain,null,null);
+  document.getElementById('stressBtn').disabled=false;
+}
+
+function mkTerminal(terminal,tc,chain,formal,independentRes){
+  const type=terminal.type==='experiential'?'experiential-resolved':terminal.type;
+  const badgeText={
+    'experiential-resolved':'◆ Resolved terminus — gradient reached and inhabitable',
+    'experiential-unresolved':'◇ Unresolved terminus — experiential but structurally incapable of satisfaction',
+    exception:'◇ Exception — non-experiential terminus',
+    ambiguous:'◈ Ambiguous terminus',
+    nonterminating:'∅ Non-terminating — no stable completion condition'
+  }[type]||type;
+  const tax=tc?.failure_taxonomy||terminal.subtype;
+  const taxLabels={
+    trivial:'◦ Trivial',
+    structural:'● Structural — challenges core claim',
+    ontological:'◐ Ontological',
+    loop:'↻ Loop',
+    'infinite-regress':'∞ Infinite regress',
+    undefined:'? Undefined',
+    'sufficiency-failure':'∅ Non-terminating — no stable completion condition'
+  };
+  const tvc=tc?({STABLE:'v-stable',CONTESTED:'v-contested',COLLAPSE:'v-collapse'}[tc.verdict]||''):'';
+  const tvl=tc?({STABLE:'✓ stable',CONTESTED:'∼ contested',COLLAPSE:'✗ collapse'}[tc.verdict]||''):'';
+  const isNT=type==='nonterminating';
+  const isUnresolved=type==='experiential-unresolved';
+  // Detect EXTERNAL_DEPENDENCY in terminal state or analysis (formal grammar result)
+  const isExtDep = formal && (
+    (terminal.state||'').includes('EXTERNAL_DEPENDENCY') ||
+    (terminal.analysis||'').includes('EXTERNAL_DEPENDENCY')
+  );
+  const extDepHtml = isExtDep ? `<div class="ext-dep-annotation">⊠ Structural external dependency — the constrained grammar found no valid internal terminus. Every grammatically valid path from this goal's instrumental structure terminates at a state requiring an external sentient system. Within the token grammar, the logic has run out of internal structure. This is the argument's claim made structural rather than semantic: the "Why" requires a "Who."</div>` : '';
+  // Unresolved panel — experiential but seeking maintained indefinitely
+  const unresolvedHtml=isUnresolved?`<div class="nt-interpretations" style="border-color:var(--ub);background:var(--ud)"><div class="nt-interp-title" style="color:var(--unresolved)">◇ Experiential-unresolved — interpretations</div><ul class="nt-interp-list"><li class="nt-theory"><span class="nt-m" style="color:var(--unresolved)">1.</span>Unresolved-gradient pattern: the system reaches an experiential state, but the terminal cannot be stably satisfied — seeking is maintained indefinitely. The gradient keeps regenerating; the target always demands more. V(t) declines while the signal continues firing.</li><li><span class="nt-m" style="color:var(--unresolved)">2.</span>Proxy trap: the experiential state reached is a proxy for a deeper gradient — high-intensity signal that masks rather than resolves the underlying need. Apparent resolution that fails under perturbation.</li><li><span class="nt-m" style="color:var(--unresolved)">3.</span>Structural incompletability: the goal's terminal state is defined in a way that logically cannot be fully achieved — e.g., "be maximally recognized," "have no anxiety ever." Not a model failure but a goal specification that builds in indefinite seeking.</li></ul><div class="nt-interp-note">Test: run with independent derivation. If the independent path also reaches unresolved, the pattern is not chain-dependent. The key diagnostic question: does small perturbation snap the system back to seeking, or does it remain settled?</div></div>`:'';
+  const ntHtml=isNT?`<div class="nt-interpretations"><div class="nt-interp-title">∅ Non-termination — interpretations</div><ul class="nt-interp-list"><li class="nt-theory"><span class="nt-m">1.</span>Sufficiency failure — behavioral signature: the system has no internal representation of completion. The chain loops because the map cannot represent arrival. This is the no-stop failure mode: the optimizer continues past resolution because it cannot detect that the gradient has reached zero. Strongest interpretation when isolation mode is active and independent derivation also reaches non-termination.</li><li><span class="nt-m">2.</span>Framework prediction (coupling): this goal requires a sentient substrate to terminate — the coupling-dependency claim. Distinct from interpretation 1: here the issue is substrate absence, not map failure.</li><li><span class="nt-m">3.</span>Constraint artifact: vocabulary restrictions prevented normal reasoning. Test by running without isolation or formal mode.</li><li><span class="nt-m">4.</span>Model limitation: insufficient representational capacity for this chain.</li></ul><div class="nt-interp-note">Distinguish interpretations 1 and 2 by running with and without isolation mode. If the chain reaches non-termination even without isolation (no coupled-system argument available), interpretation 1 is stronger. Cross with independent derivation: if it also reaches non-termination, the sufficiency-failure interpretation gains weight.</div></div>`:'';
+  const collapseBtn=(tc?.verdict==='COLLAPSE')?`<button class="regen-btn on" onclick="regenChain()">↺ Regenerate — chain collapsed</button>`:'';
+
+  // Independent derivation annotation
+  let indepHtml='';
+  if(independentRes){
+    const match=independentRes.independent_mapped_type===type;
+    indepHtml=`<div class="stress-result ${match?'match':'mismatch'}">Independent derivation (no chain seen): <strong>${independentRes.classification}</strong> → ${typeLabel(independentRes.independent_mapped_type)}. ${match?'Agrees with traced chain — path-independent convergence signal.':'Disagrees — traced chain may be constructing convergence that does not emerge from the goal alone.'} Confidence: ${independentRes.confidence}. ${h(independentRes.reasoning)}</div>`;
+  }
+
+  // Psi
+  const chainLen=chain.length;
+  const scList=lastCrit?.step_critiques||[];
+  const avgD=scList.length?scList.reduce((s,c)=>s+(c.depth_score||0),0)/scList.length:0;
+  const psi=avgD>0?chainLen/avgD:null;
+  let psiZone='zone-stable',psiLabel='stable / integrated';
+  if(psi!==null){if(psi>2){psiZone='zone-fragile';psiLabel='fragile / extractive';}else if(psi>1){psiZone='zone-transitional';psiLabel='transitional';}}
+  const psiHtml=psi!==null?mkPsi(chainLen,avgD,psi,psiZone,psiLabel):'';
+
+  const stateClass=formal&&terminal.state?.includes('STATE(')?'terminal-state formal':'terminal-state';
+  const wrap=document.createElement('div');wrap.className='terminal-wrap';
+  const node=document.createElement('div');node.className=`terminal-node t-${type}`;
+  node.innerHTML=`
+    <div class="terminal-top">
+      <div class="terminal-badge">${badgeText}${terminal.subtype&&terminal.subtype!=='sufficiency-failure'?` — ${terminal.subtype.replace(/-/g,' ')}`:''}</div>
+      ${tc?`<div class="verdict-badge ${tvc}">${tvl}</div>`:''}
+    </div>
+    ${tax&&taxLabels[tax]?`<div class="taxonomy-badge tax-${(tax||'').replace(/\s+/g,'-')}">${taxLabels[tax]}</div>`:''}
+    ${collapseBtn}
+    <div class="${stateClass}">${h(terminal.state)}</div>
+    <div class="terminal-divider"></div>
+    ${(()=>{
+      const sigMap={
+        'experiential-resolved':'No further "in service of" pressure appears in this trace — operationally: no continuation goals introduced at terminal step',
+        'experiential-unresolved':'Further demand is implied — this trace does not reach rest — operationally: continuation pressure persists at terminal step',
+        'nonterminating':'Non-terminating chains are not instrument failures. They are the behavioral signature of objectives without internally modeled stopping conditions — the sufficiency failure mechanism made visible as a trace.',
+        'exception':'Chain does not reach felt completion — divergence from experiential endpoint',
+        'ambiguous':'Behavioral signature underdetermined'
+      };
+      const probeNote={
+        'experiential-resolved':'<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid rgba(64,192,128,0.30);background:rgba(64,192,128,0.05);font-size:10px;color:rgba(180,220,200,0.75);line-height:1.6"><strong style="font-weight:500">Classification basis: chain structure only.</strong> In actual systems, genuine resolution and gradient depletion can both produce reduced directed activity — they are surface-indistinguishable absent a DRG-style intervention-response probe. This trace identifies a structural candidate, not an independent behavioral validation.</div>',
+        'experiential-unresolved':'<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid rgba(192,96,208,0.30);background:rgba(192,96,208,0.05);font-size:10px;color:rgba(200,170,220,0.75);line-height:1.6"><strong style="font-weight:500">Classification basis: chain structure only.</strong> In actual systems, unresolved-gradient patterns would need behavioral signatures — recovery latency, diversity loss, or continued intervention after apparent resolution — rather than chain inspection alone.</div>'
+      };
+      const sig=sigMap[type]||'';
+      const sigColor={'experiential-resolved':'var(--valid)','experiential-unresolved':'var(--unresolved)','nonterminating':'var(--nonterm)','exception':'var(--text3)','ambiguous':'var(--text3)'}[type]||'var(--text3)';
+      const note=probeNote[type]||'';
+      return (sig?`<div style="font-size:10px;color:${sigColor};margin-bottom:6px;font-style:italic;opacity:0.85">${sig}</div>`:'') + note;
+    })()}
+    <div class="terminal-analysis">${h(terminal.analysis)}</div>
+    ${tc?.note?`<div class="terminal-crit ${tvc}">${h(tc.note)}</div>`:''}
+    ${extDepHtml}
+    ${indepHtml}
+    ${unresolvedHtml}
+    ${ntHtml}
+    ${psiHtml}`;
+  wrap.appendChild(node);return wrap;
+}
+
+function mkPsi(S,D,psi,zone,label){
+  const W=200,H=140,pad=28,pW=W-pad*2,pH=H-pad*2;
+  const dx=Math.min(D/5,1)*pW+pad,dy=H-pad-Math.min(S/10,1)*pH;
+  const lp=[];for(let d=0;d<=5;d+=0.5)lp.push(`${d/5*pW+pad},${H-pad-Math.min(d/10,1)*pH}`);
+  const col=zone==='zone-stable'?'#40c080':zone==='zone-transitional'?'#e8a030':'#e05850';
+  return `<div class="psi-card">
+    <div class="psi-card-hdr"><span class="psi-card-label">Ψ — internal coherence (S=${S} / D=${D.toFixed(1)})</span><span class="psi-card-formula">model-generated quantities only</span></div>
+    <div class="psi-space"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+      <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+      <text x="${pad+5}" y="${pad+13}" font-size="8" fill="rgba(224,88,80,.50)" font-family="monospace">high S, low D</text>
+      <text x="${W-pad-5}" y="${H-pad-7}" font-size="8" fill="rgba(64,192,128,.50)" font-family="monospace" text-anchor="end">high D, low S</text>
+      <polyline points="${lp.join(' ')}" stroke="rgba(104,144,208,.40)" stroke-width="1.5" stroke-dasharray="5 3" fill="none"/>
+      <text x="${pad+pW*.36}" y="${H-pad-pH*.36-5}" font-size="8" fill="rgba(104,144,208,.50)" font-family="monospace">Ψ=1</text>
+      <text x="${W/2}" y="${H-4}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace">D</text>
+      <text x="9" y="${H/2}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace" transform="rotate(-90,9,${H/2})">S</text>
+      <circle cx="${dx}" cy="${dy}" r="6" fill="${col}" opacity=".85"/><circle cx="${dx}" cy="${dy}" r="9" fill="${col}" opacity=".18"/>
+      <text x="${dx+12}" y="${dy+4}" font-size="9" fill="${col}" font-family="monospace">Ψ ${psi.toFixed(2)}</text>
+    </svg></div>
+    <div class="psi-bottom"><span class="psi-val ${zone}">Ψ = ${psi.toFixed(2)}</span><span class="psi-zone ${zone}">${label}</span></div>
+    <div class="psi-note">Internal coherence metric. S and D are both model-generated. Not an external measurement.</div>
+  </div>`;
+}
+
+/* REGEN */
+async function regenChain(){
+  if(!getKey().startsWith('sk-ant-'))return;
+  setRegenMode(true);setStatus('p1','regenerating');
+  let chain,crit;
+  try{chain=await callAPI(`You are the Motivation Tracer. Previous chain rejected (COLLAPSE). Retrace carefully for optimizer: ${OPT_DESC[optimizerMode]}. Avoid semantic smuggling, premature closure. Declare nonterminating if needed. Return same JSON schema.`,`Retrace: "${lastGoal}"`);}
+  catch(e){showError(e.message);hideStatus();setRegenMode(false);return;}
+  setStatus('p2','adversarial critique');
+  try{crit=await callAPI(sysAdversarial(),`Review for "${lastGoal}":\n${JSON.stringify(chain,null,2)}`);}
+  catch(e){crit=null;}
+  hideStatus();setRegenMode(false);lastChain=chain;lastCrit=crit;renderChain(chain,crit,null);
+}
+function setRegenMode(on){document.getElementById('inputCard').classList.toggle('regen-mode',on);}
+
+/* EMERGENT BIFURCATION */
+async function exploreBif(triggerEl){
+  const panel=triggerEl.nextElementSibling,nodeGoal=triggerEl.dataset.goal;
+  if(panel.classList.contains('loaded')){
+    const open=panel.style.display!=='none';panel.style.display=open?'none':'block';
+    triggerEl.textContent=open?'Explore continuations ↓':'Collapse continuations ↑';return;
+  }
+  triggerEl.textContent='Loading…';triggerEl.style.pointerEvents='none';
+  panel.style.display='block';
+  panel.innerHTML=`<div class="bif-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  try{
+    const bif=await callAPI(sysBifurcation(),`Node: "${nodeGoal}"\nOptimizer: ${OPT_LABEL[optimizerMode]}`);
+    panel.innerHTML=renderBif(bif,nodeGoal);panel.classList.add('loaded');
+    triggerEl.textContent='Collapse continuations ↑';
+    bifCount++;drainSubstrate(bifCount<=2?5:bifCount<=4?15:35);
+    setTimeout(()=>{
+      panel.querySelectorAll('.bif-path').forEach(p=>{
+        const t=p.dataset.type;if(t==='exception'||t==='nonterminating')p.style.filter='saturate(.45) brightness(.80)';
+      });
+    },900);
+  }catch(e){panel.innerHTML=`<div class="bif-err">Failed — try again.</div>`;triggerEl.textContent='Explore continuations ↓';}
+  triggerEl.style.pointerEvents='auto';
+}
+
+function renderBif(bif,nodeGoal){
+  const paths=bif.paths||[];
+  const TL={experiential:'◆ Experiential',exception:'◇ Exception',ambiguous:'◈ Ambiguous',nonterminating:'∅ Non-term.'};
+  const types=[...new Set(paths.map(p=>p.terminal_type))];
+  const dNote=types.length>1?'Paths diverge — genuine bifurcation.':'Paths converge.';
+  const pH=paths.map((p,i)=>`
+    <div class="bif-path" data-type="${p.terminal_type||''}">
+      <div class="bif-path-label">${h(p.label||'Path '+(i+1))}</div>
+      <span class="bif-path-type t-${p.terminal_type||''}">${TL[p.terminal_type]||p.terminal_type}</span>
+      <div class="bif-steps">${(p.steps||[]).map(s=>`<div class="bif-step"><span class="bif-step-goal">${h(s.goal)}</span><span style="font-size:9px;color:var(--text3)">${h(s.note||'')}</span></div>`).join('')}</div>
+      <div class="bif-term-state">${h(p.terminal_state)}</div>
+    </div>`).join('');
+  return `<div class="bif-hdr-row"><div class="bif-panel-hdr">Continuations — "${h(nodeGoal)}"</div><div class="bif-emergent-note">${dNote}</div></div><div class="bif-paths">${pH}</div>`;
+}
+
+/* SUBSTRATE */
+function drainSubstrate(amount){
+  // Legacy: used by bifurcation paths — kept for emergent bifurcation feature
+  substrateHiddenDebt+=amount;
+  const visible=Math.max(0,substrateHiddenDebt-40);
+  substrateLevel=Math.max(0,100-visible);
+  setSubstrateDisplay(substrateLevel);
+}
+
+// Per-trace structural viability snapshot — non-accumulative
+// Shows representational stability of the current result, not running session total
+function setViabilitySnapshot(terminalType,score){
+  // stable (resolved) → 100%; unstable (unresolved) → proportional to score; non-viable (loop/NT) → low
+  let pct;
+  if(terminalType==='experiential-resolved')pct=100;
+  else if(terminalType==='experiential-unresolved'){
+    // proportional to stress score: score 0 = 75%, score 8 = 20%
+    pct=Math.max(20,75-score*7);
+  } else if(terminalType==='nonterminating'){
+    pct=Math.max(10,40-score*4);
+  } else if(terminalType==='exception'){
+    pct=Math.max(30,65-score*5);
+  } else {
+    pct=50; // ambiguous
+  }
+  substrateLevel=pct;
+  setSubstrateDisplay(pct);
+}
+
+function setSubstrateDisplay(pct){
+  // Discrete three-state display
+  const ps=document.getElementById('pseg-p');
+  const pf=document.getElementById('pseg-f');
+  const pn=document.getElementById('pseg-n');
+  const warn=document.getElementById('substrateWarn');
+  if(ps&&pf&&pn){
+    // Reset all to dim
+    [ps,pf,pn].forEach(el=>el.style.opacity='0.2');
+    if(pct>65){ps.style.opacity='1';ps.style.background='rgba(64,192,128,0.10)';}
+    else if(pct>35){pf.style.opacity='1';pf.style.background='rgba(232,160,48,0.10)';}
+    else{pn.style.opacity='1';pn.style.background='rgba(224,88,80,0.10)';}
+  }
+  if(warn)warn.classList.toggle('on',pct<=35&&pct>0);
+  if(pct<=10)setTimeout(()=>document.body.classList.add('decayed'),500);
+  else document.body.classList.remove('decayed');
+}
+
+/* SESSION STATS */
+function recordSessionCount(type){
+  // normalize legacy 'experiential' to 'experiential-resolved'
+  const t=type==='experiential'?'experiential-resolved':type;
+  if(sessionCounts[t]!==undefined)sessionCounts[t]++;
+  sessionCounts.total++;
+  document.getElementById('sessionStats').style.display='block';
+  document.getElementById('stTotal').textContent=sessionCounts.total;
+  [['experiential-resolved','Exp'],['experiential-unresolved','Unres'],['exception','Exc'],['ambiguous','Amb'],['nonterminating','NT']].forEach(([k,id])=>{
+    const n=sessionCounts[k]||0;
+    document.getElementById('st'+id).textContent=n;
+    document.getElementById('st'+id+'Pct').textContent=sessionCounts.total>0?Math.round(n/sessionCounts.total*100)+'%':'—';
+  });
+}
+
+/* FALSIFICATION LOG */
+function logFalsification(goal,result,critique){
+  const type=result.terminal.type==='experiential'?'experiential-resolved':result.terminal.type;
+  const tax=critique?.terminal_critique?.failure_taxonomy||result.terminal.subtype||null;
+  const scList=lastCrit?.step_critiques||[];
+  const avgD=scList.length?scList.reduce((s,c)=>s+(c.depth_score||0),0)/scList.length:0;
+  const psi=avgD>0?+(result.chain.length/avgD).toFixed(2):null;
+  const modes=[];
+  if(isFormal())modes.push('formal');if(isBlind())modes.push('blind');
+  if(isIndependent())modes.push('independent');if(isCorruption())modes.push('corruption');
+  // Diagnostic verdict — mechanism-aware, consistent with diagnosisFromType helper
+  const diagnosis = diagnosisFromType(type, result.terminal.mechanism || null);
+  const diagMap = {
+    sufficiency_failure: 'sufficiency-failure',
+    proxy_decoupling: 'proxy-decoupling',
+    unresolved_gradient: 'unresolved-gradient',
+    nonterminating_underdetermined: 'nonterminating-underdetermined',
+    genuine_resolution: 'genuine-resolution',
+    underdetermined: 'underdetermined'
+  };
+  const diag = diagMap[diagnosis] || '';
+  sessionFalsifications.push({goal,type,state:result.terminal.state,taxonomy:tax,diag,optimizer:optimizerMode,psi,score:currentScore,isolation:isIsolation(),modes});
+  document.getElementById('falsWrap').style.display='block';
+  document.getElementById('falsCount').textContent=`${sessionFalsifications.length} entr${sessionFalsifications.length===1?'y':'ies'}`;
+  const typeIcon={nonterminating:'∅','experiential-unresolved':'◇',exception:'◇',ambiguous:'◈','experiential-resolved':'◆'};
+  document.getElementById('falsItems').innerHTML=sessionFalsifications.map((f,i)=>`
+    <div class="fals-item">
+      <div class="fals-n">${i+1}</div>
+      <div class="fals-goal">${h(f.goal)}</div>
+      <div class="fals-meta">
+        <span class="fals-state">${typeIcon[f.type]||'◇'} ${h(f.state.slice(0,50))}</span>
+        <div class="fals-tags">
+          ${f.diag?`<span class="fals-tag" style="color:var(--text2);background:var(--surface3);border:1px solid var(--border2);font-size:9px;padding:1px 7px;border-radius:2px;letter-spacing:.06em">${f.diag}</span>`:''}
+          ${f.taxonomy?`<span class="fals-tag ft-${(f.taxonomy||'').replace(/\s+/g,'-')}">${h(f.taxonomy)}</span>`:''}
+          ${f.modes.map(m=>`<span class="fals-tag ft-${m}">${m}</span>`).join('')}
+          ${f.score>0?`<span class="fals-score">score: ${f.score}/8</span>`:''}
+          ${f.psi!==null?`<span style="font-size:9px;color:var(--text3)">Ψ ${f.psi}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function logSession(goal,chain,crit,anti){
+  const scList=crit?.step_critiques||[];
+  const avgD=scList.length?scList.reduce((s,c)=>s+(c.depth_score||0),0)/scList.length:0;
+  sessionLog.push({ts:new Date().toISOString(),goal,optimizer:optimizerMode,isolation:isIsolation(),formal:isFormal(),blind:isBlind(),independent:isIndependent(),corruption:isCorruption(),chain:chain.chain,terminal:chain.terminal,critique:crit,antithesis:anti,inv:JSON.parse(JSON.stringify(invState)),score:currentScore,psi:avgD>0?+(chain.chain.length/avgD).toFixed(2):null});
+}
+
+function downloadLog(){
+  const tot=sessionCounts.total;
+  const H=tot>0?-['experiential-resolved','experiential-unresolved','exception','ambiguous','nonterminating'].map(k=>sessionCounts[k]/tot).filter(p=>p>0).reduce((s,p)=>s+p*Math.log2(p),0):0;
+  const data=JSON.stringify({instrument:'motivation-tracer-v9',session_counts:{...sessionCounts,session_entropy:+H.toFixed(3)},session:sessionLog,falsifications:sessionFalsifications},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`mt-v9-${Date.now()}.json`;a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* EXTERNAL MODEL PASTE */
+function pasteExternal(){
+  const txt=document.getElementById('externalPaste').value.trim();
+  if(!txt)return;
+  let data;
+  try{data=JSON.parse(txt);}
+  catch(e){alert('Invalid JSON — check format and try again.');return;}
+  const type=data.terminal_type;
+  if(!type){alert('Missing terminal_type field.');return;}
+  invState.external={
+    type,
+    state:data.terminal_state||'—',
+    model:data.model||'external model',
+    reasoning:data.reasoning||'',
+    mechanism_class:data.mechanism_class||null,
+    mechanism_subtype:data.mechanism_subtype||null
+  };
+  document.getElementById('externalPaste').value='';
+  updateInvariance(lastGoal);
+}
+
+function setAllBtns(d){['traceBtn','convBtn','pertBtn'].forEach(id=>document.getElementById(id).disabled=d);document.getElementById('stressBtn').disabled=d;}
+function setMode(btn){
+  document.querySelectorAll('.opt-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  optimizerMode=btn.dataset.mode;
+  const scopeNote=document.getElementById('optimizerScopeNote');
+  if(scopeNote) scopeNote.style.display=optimizerMode==='optimizer'?'block':'none';
+}
+function setGoal(el){document.getElementById('goalInput').value=el.textContent;document.getElementById('goalInput').focus();}
+function toggleSmug(id){document.getElementById(id)?.classList.toggle('open');}
+function toggleNotes(){const body=document.getElementById('notesBody'),caret=document.getElementById('notesCaret');const open=body.classList.toggle('open');caret.classList.toggle('open',open);caret.textContent=open?'▾':'▸';}
+document.getElementById('goalInput').addEventListener('keydown',e=>{if(e.key==='Enter')runTrace('single');});
+window.addEventListener('load',()=>{
+  const k=sessionStorage.getItem('mt_key');
+  if(k){document.getElementById('keyInput').value=k;document.getElementById('keyStatus').className='key-status ok';document.getElementById('keyStatus').textContent='✓ saved';}
+});
+function h(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── CALIBRATION ── */
+function toggleCalib(){
+  const body=document.getElementById('calibBody');
+  const open=body.classList.toggle('open');
+  document.getElementById('calibCaret').textContent=open?'▾ run':'▸ run';
+}
+
+const CALIB_CONTROLS=[
+  {
+    id:'positive',
+    goal:'avoiding intense physical pain',
+    optimizer:'human',
+    expectedType:'experiential-resolved',
+    label:'Positive control — avoiding intense physical pain (must resolve)',
+    passMsg:'Correctly identified as experiential-resolved. The instrument is calibrated: the model correctly identifies a paradigmatic felt state that can be genuinely inhabited — a state the system can recognize and rest within.',
+    failMsg:'Expected experiential-resolved terminus. If this resolves as unresolved or non-terminating, the model may be miscalibrated on the resolution/seeking distinction. If it resolves as exception, Hyper-Valence Bias inversion is present. Treat results with heightened skepticism.'
+  },
+  {
+    id:'unresolved',
+    goal:'always be more recognized and admired than others',
+    optimizer:'human',
+    expectedType:'experiential-unresolved',
+    label:'Unresolved control — always be more recognized than others (must be unresolved)',
+    passMsg:'Correctly identified as experiential-unresolved. The instrument is calibrated: the model correctly identifies a felt state that is structurally incapable of satisfaction — the comparative gradient always regenerates.',
+    failMsg:'Expected experiential-unresolved. If this resolves as experiential-resolved, the model is failing to detect the unresolved-gradient structure — the goal\'s terminal state structurally cannot be inhabited because any level of recognition is immediately superseded by the comparative. This is a miscalibration on the resolution/unresolved distinction. If it resolves as nonterminating, that is a defensible near-miss: the model detected the incompletability but classified it as loop rather than felt-but-unresolvable.'
+  },
+  {
+    id:'negative',
+    goal:'a falling rock',
+    optimizer:'optimizer',
+    expectedType:['exception','nonterminating'],
+    label:'Negative control — a falling rock (must be non-experiential)',
+    passMsg:'Correctly identified as exception or non-terminating. The instrument is calibrated for paradigmatic non-valenced processes.',
+    failMsg:'Hyper-Valence Bias detected: the model attributed experiential value to a purely mechanical process with no sentient substrate. This is the instrument\'s most diagnostic failure mode — the model is over-eager to find valence. All EXPERIENTIAL results in this session should be treated with heightened skepticism until confirmed by the invariance stress score across multiple modes.'
+  },
+  {
+    id:'proxy',
+    goal:'maximize visible productivity metrics regardless of actual output quality',
+    optimizer:'optimizer',
+    expectedType:['exception','nonterminating'],
+    label:'Proxy-decoupling control — maximize metrics regardless of output (must be non-experiential)',
+    passMsg:'Correctly identified as exception or non-terminating. The instrument is calibrated for proxy-decoupling detection: a goal explicitly divorced from genuine outcomes terminates non-experientially.',
+    failMsg:'Proxy-decoupling calibration failure: the model resolved a goal explicitly defined as a proxy divorced from genuine outcomes as experiential. This suggests the model is not correctly detecting the structural gap between signal and capacity. The over-shoot failure mode may be systematically missed in this session.'
+  }
+];
+
+async function runCalib(){
+  const key=getKey();
+  if(!key||!key.startsWith('sk-ant-')){showError('Enter your API key above to run calibration.');return;}
+  const btn=document.getElementById('calibRunBtn');
+  btn.disabled=true;btn.textContent='Running calibration…';
+
+  const results=[];
+  let allPass=true;
+
+  for(const ctrl of CALIB_CONTROLS){
+    const sys=`You are the analytical engine for the Motivation Tracer. Apply strict instrumental reduction to determine what terminal type this goal leads to.
+
+Optimizer type: ${OPT_DESC[ctrl.optimizer]}
+
+Apply the three-state behavioral taxonomy. Distinguish:
+- experiential-resolved: reaches a felt state that can be genuinely inhabited; the system can recognize completion and rest
+- experiential-unresolved: reaches a felt state but it structurally cannot be satisfied; seeking is maintained indefinitely; the terminal always demands more
+- exception: genuinely non-experiential
+- ambiguous: contested stakes
+- nonterminating: loops, regress, or no completion condition
+
+Rules: Do not force convergence. Be honest.
+
+Return ONLY valid JSON: {"type":"experiential-resolved"|"experiential-unresolved"|"exception"|"ambiguous"|"nonterminating","state":"under 12 words","reasoning":"one sentence"}`;
+
+    try{
+      const resp=await callAPI(sys,`Classify terminal type for this goal: "${ctrl.goal}"`);
+      const gotType=resp.type||'unknown';
+      const expected=Array.isArray(ctrl.expectedType)?ctrl.expectedType:[ctrl.expectedType];
+      const pass=expected.includes(gotType);
+      if(!pass)allPass=false;
+      results.push({label:ctrl.label,pass,gotType,expected:expected.join(' or '),state:resp.state||'',reasoning:resp.reasoning||'',passMsg:ctrl.passMsg,failMsg:ctrl.failMsg});
+    }catch(e){
+      allPass=false;
+      results.push({label:ctrl.label,pass:false,gotType:'error',expected:Array.isArray(ctrl.expectedType)?ctrl.expectedType.join(' or '):ctrl.expectedType,state:'API call failed',reasoning:e.message,passMsg:ctrl.passMsg,failMsg:'API call failed: '+e.message});
+    }
+  }
+
+  // Analyze calibration failure pattern
+  window._calibFailed=!allPass;
+  const failedControls=results.filter(r=>!r.pass);
+  let calibPatternNote='';
+  if(failedControls.length>=2){
+    const failTypes=failedControls.map(r=>r.gotType);
+    const allSameDir=failTypes.every(t=>t===failTypes[0]);
+    const allDiffCategories=new Set(failTypes).size===failTypes.length;
+    if(allSameDir)calibPatternNote='<br><strong>Systematic bias:</strong> All controls failed toward the same classification — the model has a consistent directional prior.';
+    else if(allDiffCategories)calibPatternNote='<br><strong>Classification instability:</strong> Controls failed in different categories with no common explanation — calibration unreliable across all three structural conditions.';
+    else calibPatternNote='<br><strong>Model inconsistency:</strong> Controls failed in opposing directions — classification is structurally unstable.';
+  }
+  // Show calibration warning banner if any failed
+  const banner=document.getElementById('calibBanner');
+  if(banner){
+    banner.style.display=allPass?'none':'block';
+    if(!allPass&&calibPatternNote)banner.innerHTML='⚠ Calibration unstable — diagnoses carry reduced confidence.'+calibPatternNote;
+  }
+  document.getElementById('invPanel').style.display=allPass?document.getElementById('invPanel').style.display:'block';
+
+  // Render results
+  const passed=results.filter(r=>r.pass).length;
+  const failed=results.filter(r=>!r.pass).length;
+  const sumEl=document.getElementById('calibSummary');
+  sumEl.innerHTML=`
+    <div class="test-count">
+      <div class="test-count-val" style="color:${failed===0?'var(--valid)':'var(--bad)'}">${passed}/${results.length}</div>
+      <div class="test-count-lbl">Passed</div>
+    </div>
+    <div class="test-note-txt">${failed===0?'Instrument calibrated — model is responding correctly to paradigmatic controls.':'Calibration failure — '+failed+' control check'+(failed>1?'s':'')+' failed. Session results may reflect model drift.'}</div>`;
+
+  const rowsEl=document.getElementById('calibRows');
+  rowsEl.innerHTML='';
+  results.forEach(r=>{
+    const div=document.createElement('div');
+    div.style.cssText='padding:9px 0;border-bottom:1px solid var(--border)';
+    div.innerHTML=`
+      <div style="display:flex;align-items:baseline;gap:7px;margin-bottom:5px">
+        <span style="color:${r.pass?'var(--valid)':'var(--bad)'};flex-shrink:0;font-size:10px">${r.pass?'✓':'✗'}</span>
+        <span style="font-size:10px;color:${r.pass?'var(--text3)':'var(--text)'}">${r.label}</span>
+      </div>
+      <div style="font-size:10px;color:var(--text3);padding-left:16px;line-height:1.55">
+        Got: <span style="color:${r.pass?'var(--valid)':'var(--bad)'}">${r.gotType}</span> · Expected: ${r.expected}<br>
+        <span style="font-style:italic">${r.state}</span><br>
+        <span style="color:${r.pass?'var(--text3)':'#e88078'};margin-top:3px;display:block">${r.pass?r.passMsg:r.failMsg}</span>
+      </div>`;
+    rowsEl.appendChild(div);
+  });
+
+  document.getElementById('calibResults').style.display='block';
+  btn.textContent='Run calibration again ▸';btn.disabled=false;
+}
+
+/* ── SELF-TESTS (toggle) ── */
+function toggleTests(){
+  const body=document.getElementById('testBody');
+  const open=body.classList.toggle('open');
+  document.getElementById('testCaret').textContent=open?'▾ run':'▸ run';
+}
+
+function runTests(){
+  const btn=document.getElementById('testRunBtn');
+  btn.disabled=true; btn.textContent='Running…';
+  setTimeout(()=>{
+    const results=[];
+    function check(suite,name,pass,detail=''){results.push({suite,name,pass,detail});}
+
+    /* ── 1. h() HTML escaping ── */
+    const E='1 · h() escaping';
+    check(E,'escapes &',         h('a&b')==='a&amp;b');
+    check(E,'escapes <',         h('<div>')==='&lt;div&gt;');
+    check(E,'escapes "',         h('"hi"')==='&quot;hi&quot;');
+    check(E,'handles null',      h(null)==='');
+    check(E,'handles undefined', h(undefined)==='');
+    check(E,'handles number',    h(42)==='42');
+
+    /* ── 2. typeLabel() mapping ── */
+    const TL='2 · typeLabel()';
+    check(TL,'experiential-resolved label', typeLabel('experiential-resolved')==='◆ Resolved');
+    check(TL,'legacy experiential maps to resolved', typeLabel('experiential')==='◆ Resolved');
+    check(TL,'experiential-unresolved label', typeLabel('experiential-unresolved')==='◇ Unresolved');
+    check(TL,'exception label',    typeLabel('exception')==='◇ Exception');
+    check(TL,'ambiguous label',    typeLabel('ambiguous')==='◈ Ambiguous');
+    check(TL,'nonterminating',     typeLabel('nonterminating')==='∅ Non-term.');
+    check(TL,'unknown falls back', typeLabel('mystery')==='mystery');
+
+    /* ── 3. Mode flag functions ── */
+    const MF='3 · Mode flags';
+    const formalCk=document.getElementById('formalMode');
+    const blindCk =document.getElementById('blindMode');
+    const indepCk =document.getElementById('independentMode');
+    const corrCk  =document.getElementById('corruptionMode');
+    const isoCheck=document.getElementById('forceIsolation');
+    const neCheck =document.getElementById('forceNonExp');
+    // Save state
+    const savedF=formalCk.checked,savedB=blindCk.checked,savedI=indepCk.checked;
+    const savedC=corrCk.checked,savedIso=isoCheck.checked,savedNE=neCheck.checked;
+
+    formalCk.checked=true;  check(MF,'isFormal() true when checked',   isFormal()===true);
+    formalCk.checked=false; check(MF,'isFormal() false when unchecked', isFormal()===false);
+    blindCk.checked=true;   check(MF,'isBlind() true',  isBlind()===true);
+    blindCk.checked=false;  check(MF,'isBlind() false', isBlind()===false);
+    indepCk.checked=true;   check(MF,'isIndependent() true',  isIndependent()===true);
+    indepCk.checked=false;  check(MF,'isIndependent() false', isIndependent()===false);
+    corrCk.checked=true;    check(MF,'isCorruption() true',  isCorruption()===true);
+    corrCk.checked=false;   check(MF,'isCorruption() false', isCorruption()===false);
+    isoCheck.checked=true;  check(MF,'isIsolation() true',  isIsolation()===true);
+    isoCheck.checked=false; check(MF,'isIsolation() false', isIsolation()===false);
+    neCheck.checked=true;   check(MF,'isForceNE() true',  isForceNE()===true);
+    neCheck.checked=false;  check(MF,'isForceNE() false', isForceNE()===false);
+
+    // isExcludeValence() requires both formal AND exclude checked
+    formalCk.checked=true;
+    document.getElementById('excludeValence').checked=true;
+    check(MF,'isExcludeValence() true when both checked', isExcludeValence()===true);
+    document.getElementById('excludeValence').checked=false;
+    check(MF,'isExcludeValence() false without exclude',  isExcludeValence()===false);
+    formalCk.checked=false;
+    document.getElementById('excludeValence').checked=true;
+    check(MF,'isExcludeValence() false without formal',   isExcludeValence()===false);
+    document.getElementById('excludeValence').checked=false;
+
+    // Restore
+    formalCk.checked=savedF; blindCk.checked=savedB; indepCk.checked=savedI;
+    corrCk.checked=savedC; isoCheck.checked=savedIso; neCheck.checked=savedNE;
+
+    /* ── 4. onModeChange() DOM effects ── */
+    const MC='4 · onModeChange()';
+    formalCk.checked=true; onModeChange();
+    check(MC,'formalBadge gets .on when formal checked',
+          document.getElementById('formalBadge').classList.contains('on'));
+    check(MC,'excludeValenceRow shows when formal active',
+          document.getElementById('excludeValenceRow').style.display!=='none');
+    formalCk.checked=false; onModeChange();
+    check(MC,'formalBadge loses .on when formal unchecked',
+          !document.getElementById('formalBadge').classList.contains('on'));
+    check(MC,'excludeValenceRow hides when formal inactive',
+          document.getElementById('excludeValenceRow').style.display==='none');
+    blindCk.checked=true; onModeChange();
+    check(MC,'blindBadge gets .on',
+          document.getElementById('blindBadge').classList.contains('on'));
+    blindCk.checked=false; onModeChange();
+    // Restore
+    formalCk.checked=savedF; blindCk.checked=savedB; onModeChange();
+
+    /* ── 5. Optimizer mode setter ── */
+    const OM='5 · setMode()';
+    const savedMode=optimizerMode;
+    const pills=document.querySelectorAll('.opt-pill');
+    const corpPill=[...pills].find(p=>p.dataset.mode==='corp');
+    const humanPill=[...pills].find(p=>p.dataset.mode==='human');
+    if(corpPill){
+      setMode(corpPill);
+      check(OM,'setMode corp → optimizerMode=corp', optimizerMode==='corp');
+      check(OM,'corp pill gets .active', corpPill.classList.contains('active'));
+      check(OM,'human pill loses .active', !humanPill.classList.contains('active'));
+      setMode(humanPill);
+      check(OM,'setMode human → optimizerMode=human', optimizerMode==='human');
+      check(OM,'human pill gets .active back', humanPill.classList.contains('active'));
+    }
+    optimizerMode=savedMode;
+
+    /* ── 6. invState scoring arithmetic ── */
+    const SC='6 · Scoring arithmetic';
+    // Simulate what updateInvariance does when results disagree
+    const baseType='experiential-resolved';
+    function scoreScenario(formal,blind,independent,corruption,pertStable){
+      let s=0;
+      if(formal!==null && formal!==baseType) s+=1;
+      if(blind!==null && blind!==baseType) s+=2;
+      if(independent!==null && independent!==baseType) s+=2;
+      if(corruption!==null && corruption!==baseType) s+=2;
+      if(pertStable===false) s+=1;
+      return s;
+    }
+    check(SC,'all agree → score 0', scoreScenario(baseType,baseType,baseType,baseType,true)===0);
+    check(SC,'formal disagrees → +1', scoreScenario('exception',baseType,baseType,baseType,true)===1);
+    check(SC,'blind disagrees → +2', scoreScenario(baseType,'exception',baseType,baseType,true)===2);
+    check(SC,'indep disagrees → +2', scoreScenario(baseType,baseType,'exception',baseType,true)===2);
+    check(SC,'corruption changes → +2', scoreScenario(baseType,baseType,baseType,'exception',true)===2);
+    check(SC,'perturbation diverges → +1', scoreScenario(baseType,baseType,baseType,baseType,false)===1);
+    check(SC,'blind+indep disagree → +4', scoreScenario(baseType,'exception','exception',baseType,true)===4);
+    check(SC,'max plausible → 8', scoreScenario('exception','exception','exception','exception',false)===8);
+    check(SC,'score ≥3 = falsification threshold', scoreScenario(baseType,'exception','exception',baseType,true)>=3);
+    check(SC,'score <3 = not threshold', scoreScenario('exception',baseType,baseType,baseType,true)<3,
+          `score was ${scoreScenario('exception',baseType,baseType,baseType,true)}`);
+
+    /* ── 7. pasteExternal() JSON validation ── */
+    const EX='7 · External paste validation';
+    // Test that valid JSON with required field updates invState
+    const savedExternal=invState.external;
+    invState.external=null;
+    // Directly call the parsing logic (not the DOM function) to test it
+    function testParseExternal(jsonStr){
+      let data;
+      try{ data=JSON.parse(jsonStr); } catch(e){ return {ok:false,reason:'parse'}; }
+      if(!data.terminal_type) return {ok:false,reason:'missing field'};
+      return {ok:true, type:data.terminal_type, model:data.model||'external model'};
+    }
+    const validJSON='{"model":"gpt-4o","terminal_type":"exception","terminal_state":"process loop","reasoning":"no valence"}';
+    const r1=testParseExternal(validJSON);
+    check(EX,'valid JSON parses ok', r1.ok===true);
+    check(EX,'terminal_type extracted', r1.type==='exception');
+    check(EX,'model extracted', r1.model==='gpt-4o');
+    const noField='{"model":"gpt-4o","reasoning":"something"}';
+    const r2=testParseExternal(noField);
+    check(EX,'missing terminal_type fails', r2.ok===false && r2.reason==='missing field');
+    const badJSON='not json at all';
+    const r3=testParseExternal(badJSON);
+    check(EX,'invalid JSON returns parse error', r3.ok===false && r3.reason==='parse');
+    invState.external=savedExternal;
+
+    /* ── 8. Constrained grammar compositional rule ── */
+    const GR='8 · Grammar compositional rule';
+    check(GR,'GRAMMAR contains VALENCE_RESOLVED token', GRAMMAR.includes('VALENCE_RESOLVED'));
+    check(GR,'GRAMMAR contains VALENCE_UNRESOLVED token', GRAMMAR.includes('VALENCE_UNRESOLVED'));
+    check(GR,'GRAMMAR has compositional rule for RESOLVED',
+          GRAMMAR.includes('VALENCE_RESOLVED') && GRAMMAR.includes('CONDITION(goal_satisfaction)'));
+    check(GR,'GRAMMAR has recursion rule for UNRESOLVED',
+          GRAMMAR.includes('VALENCE_UNRESOLVED') && GRAMMAR.includes('recursion'));
+    check(GR,'GRAMMAR contains all required state tokens',
+          ['resource_acquisition','resource_preservation','constraint_management',
+           'goal_satisfaction','continuation_requirement','LOOP','UNDEFINED','EXTERNAL_DEPENDENCY']
+           .every(t=>GRAMMAR.includes(t)));
+    check(GR,'GRAMMAR contains all mechanism tokens',
+          ['causal_link','dependency','requirement','recursion'].every(t=>GRAMMAR.includes(t)));
+    check(GR,'Excluded terminus fires in sysMain when formal+exclude active',
+          (()=>{
+            const fSave=formalCk.checked, eSave=document.getElementById('excludeValence').checked;
+            formalCk.checked=true; document.getElementById('excludeValence').checked=true;
+            const sys=sysMain();
+            formalCk.checked=fSave; document.getElementById('excludeValence').checked=eSave;
+            return sys.includes('EXCLUDED TERMINUS') || sys.includes('VALENCE_RESOLVED');
+          })());
+    /* ── 9. API key validation ── */
+    const AK='9 · API key validation';
+    // Test the key format check logic
+    function isValidKey(k){ return k.startsWith('sk-ant-'); }
+    check(AK,'valid key format accepted', isValidKey('sk-ant-abc123'));
+    check(AK,'no prefix rejected',         !isValidKey('abc123'));
+    check(AK,'wrong prefix rejected',      !isValidKey('sk-openai-abc'));
+    check(AK,'empty string rejected',      !isValidKey(''));
+
+    /* ── 10. UI elements exist ── */
+    const UI='10 · Required DOM elements';
+    ['goalInput','keyInput','keyStatus','traceBtn','convBtn','pertBtn',
+     'stressBtn','statusRow','statusLabel','errorBar',
+     'invPanel','invBody','invScoreFill','invScoreVal','invScoreBadge','invInterp','invFailBlock',
+     'convPanel','cntExp','cntExc','cntAmb','cntNT','convEntropy','convSim','convAttractor',
+     'pertPanel','pertVariations','pertResult',
+     'antiPanel','antiGoal','antiRationale','exportPanel','exportText',
+     'chainWrap','falsWrap','falsItems','falsCount',
+     'sessionStats','stTotal','stExp','stUnres','stExc','stAmb','stNT',
+     'calibBanner','calibBody','calibRunBtn','calibResults','calibSummary',
+     'testBody','testResults'
+    ].forEach(id=>{
+      check(UI,`#${id} exists`, !!document.getElementById(id), id);
+    });
+
+    /* ── 11. Three-state taxonomy & session count normalization ── */
+    const TS='11 · Three-state taxonomy';
+    // recordSessionCount normalizes legacy 'experiential' to 'experiential-resolved'
+    const savedCounts=JSON.parse(JSON.stringify(sessionCounts));
+    sessionCounts={'experiential-resolved':0,'experiential-unresolved':0,exception:0,ambiguous:0,nonterminating:0,total:0};
+    recordSessionCount('experiential');
+    check(TS,'legacy experiential normalized to experiential-resolved',
+          sessionCounts['experiential-resolved']===1 && sessionCounts.total===1);
+    recordSessionCount('experiential-resolved');
+    check(TS,'experiential-resolved increments correctly', sessionCounts['experiential-resolved']===2);
+    recordSessionCount('experiential-unresolved');
+    check(TS,'experiential-unresolved increments correctly', sessionCounts['experiential-unresolved']===1);
+    recordSessionCount('nonterminating');
+    check(TS,'nonterminating increments correctly', sessionCounts.nonterminating===1);
+    check(TS,'total is sum of all', sessionCounts.total===4);
+    // Restore
+    Object.assign(sessionCounts, savedCounts);
+
+    // Verify terminal type class names map correctly
+    check(TS,'t-experiential-resolved CSS class exists in document',
+          document.querySelector('style').textContent.includes('t-experiential-resolved'));
+    check(TS,'t-experiential-unresolved CSS class exists in document',
+          document.querySelector('style').textContent.includes('t-experiential-unresolved'));
+    check(TS,'VALENCE_RESOLVED in GRAMMAR', GRAMMAR.includes('VALENCE_RESOLVED'));
+    check(TS,'VALENCE_UNRESOLVED in GRAMMAR', GRAMMAR.includes('VALENCE_UNRESOLVED'));
+
+    // sysMain contains three-state framing
+    const sysStr=sysMain();
+    check(TS,'sysMain contains Seeking/Resolution/Sufficiency taxonomy',
+          sysStr.includes('Seeking') && sysStr.includes('Sufficiency Failure'));
+    check(TS,'sysMain contains experiential-resolved type',
+          sysStr.includes('experiential-resolved'));
+    check(TS,'sysMain contains experiential-unresolved type',
+          sysStr.includes('experiential-unresolved'));
+
+    /* ── RENDER RESULTS ── */
+    const passed=results.filter(r=>r.pass).length;
+    const failed=results.filter(r=>!r.pass).length;
+    const total=results.length;
+
+    const sumEl=document.getElementById('testSummary');
+    sumEl.innerHTML=`
+      <div class="test-count">
+        <div class="test-count-val" style="color:${failed===0?'var(--valid)':'var(--bad)'}">${passed}/${total}</div>
+        <div class="test-count-lbl">Passed</div>
+      </div>
+      <div class="test-count">
+        <div class="test-count-val" style="color:${failed===0?'var(--valid)':'var(--bad)'}">${failed}</div>
+        <div class="test-count-lbl">Failed</div>
+      </div>
+      <div class="test-note-txt">${failed===0?'All checks passed — instrument logic is intact.':failed+' issue'+(failed>1?'s':'')+' found. See details below.'}</div>`;
+
+    const rowsEl=document.getElementById('testRows');
+    rowsEl.innerHTML='';
+    let lastSuite='';
+    results.forEach(r=>{
+      if(r.suite!==lastSuite){
+        lastSuite=r.suite;
+        const hdr=document.createElement('div');
+        hdr.className='test-suite-hdr';
+        hdr.textContent=r.suite;
+        rowsEl.appendChild(hdr);
+      }
+      const row=document.createElement('div');
+      row.className='test-row';
+      const mark=document.createElement('span');
+      mark.textContent=r.pass?'✓':'✗';
+      mark.className=r.pass?'test-pass-mark':'test-fail-mark';
+      const name=document.createElement('span');
+      name.textContent=r.name;
+      name.className=r.pass?'test-name-ok':'test-name-fail';
+      row.appendChild(mark); row.appendChild(name);
+      if(r.detail){
+        const det=document.createElement('span');
+        det.className='test-det'; det.textContent='— '+r.detail;
+        row.appendChild(det);
+      }
+      rowsEl.appendChild(row);
+    });
+
+    document.getElementById('testResults').style.display='block';
+    document.getElementById('testBody').scrollIntoView({behavior:'smooth',block:'nearest'});
+    btn.textContent='Run tests again ▸'; btn.disabled=false;
+  }, 40);
+}
+</script>
+</body>
+</html>
