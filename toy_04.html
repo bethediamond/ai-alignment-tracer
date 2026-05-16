@@ -9,21 +9,21 @@
 <style>
 :root{
   --bg:#0a0a0f;--surface:#11111a;--surface2:#191924;--surface3:#1f1f2c;
-  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
-  --text:#f0f0f8;--text2:#a8a8c0;--text3:#7878a0;
-  --valence:#ffb840;--vd:rgba(255,184,64,0.14);--vb:rgba(255,184,64,0.45);--vg:rgba(255,184,64,0.10);
-  --unresolved:#d070e0;--ud:rgba(208,112,224,0.11);--ub:rgba(208,112,224,0.38);
-  --exception:#c88aff;--ed:rgba(200,138,255,0.10);--eb:rgba(200,138,255,0.35);
-  --ambiguous:#60d0c0;--ad:rgba(96,208,192,0.10);--ab:rgba(96,208,192,0.35);
-  --nonterm:#90c0ff;--nd:rgba(144,192,255,0.13);--nb:rgba(144,192,255,0.45);
-  --valid:#50d090;--validdim:rgba(80,208,144,0.10);--validb:rgba(80,208,144,0.35);
-  --weakcol:#ffb840;--weakd:rgba(255,184,64,0.13);--weakb:rgba(255,184,64,0.42);
-  --bad:#f06860;--badd:rgba(240,104,96,0.10);--badb:rgba(240,104,96,0.35);
-  --formal:#88d8ff;--fd:rgba(136,216,255,0.09);--fb:rgba(136,216,255,0.32);
-  --blind:#e0c070;--bld:rgba(224,192,112,0.09);--blb:rgba(224,192,112,0.32);
-  --indep:#a0c8b0;--indd:rgba(160,200,176,0.09);--indb:rgba(160,200,176,0.32);
-  --corr:#d088a8;--corrd:rgba(208,136,168,0.09);--corrb:rgba(208,136,168,0.32);
-  --smug:#d090f0;--smugd:rgba(208,144,240,0.10);--smugb:rgba(208,144,240,0.32);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e8f0;--text2:#8888a0;--text3:#55556a;
+  --valence:#e8a030;--vd:rgba(232,160,48,0.09);--vb:rgba(232,160,48,0.30);--vg:rgba(232,160,48,0.07);
+  --unresolved:#c060d0;--ud:rgba(192,96,208,0.09);--ub:rgba(192,96,208,0.30);
+  --exception:#b87aff;--ed:rgba(184,122,255,0.08);--eb:rgba(184,122,255,0.27);
+  --ambiguous:#50c0b0;--ad:rgba(80,192,176,0.08);--ab:rgba(80,192,176,0.27);
+  --nonterm:#6890d0;--nd:rgba(104,144,208,0.08);--nb:rgba(104,144,208,0.27);
+  --valid:#40c080;--validdim:rgba(64,192,128,0.08);--validb:rgba(64,192,128,0.25);
+  --weakcol:#e8a030;--weakd:rgba(232,160,48,0.08);--weakb:rgba(232,160,48,0.25);
+  --bad:#e05850;--badd:rgba(224,88,80,0.08);--badb:rgba(224,88,80,0.25);
+  --formal:#70d0ff;--fd:rgba(112,208,255,0.07);--fb:rgba(112,208,255,0.25);
+  --blind:#d0b060;--bld:rgba(208,176,96,0.07);--blb:rgba(208,176,96,0.25);
+  --indep:#90b8a0;--indd:rgba(144,184,160,0.07);--indb:rgba(144,184,160,0.25);
+  --corr:#c07898;--corrd:rgba(192,120,152,0.07);--corrb:rgba(192,120,152,0.25);
+  --smug:#c080e0;--smugd:rgba(192,128,224,0.08);--smugb:rgba(192,128,224,0.25);
   --mono:'DM Mono','Fira Code',monospace;--serif:'Instrument Serif',Georgia,serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -452,9 +452,9 @@ table.inv-table tr:last-child td{border-bottom:none}
 <div class="substrate-row">
   <span class="substrate-label">Resolution class</span>
   <div style="display:flex;gap:5px;align-items:center;flex:1">
-    <div id="pseg-p" style="padding:2px 10px;border-radius:2px;border:1px solid var(--valid);color:var(--valid);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">resolved</div>
-    <div id="pseg-f" style="padding:2px 10px;border-radius:2px;border:1px solid var(--weakcol);color:var(--weakcol);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">fragile</div>
-    <div id="pseg-n" style="padding:2px 10px;border-radius:2px;border:1px solid var(--bad);color:var(--bad);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.6;transition:opacity .4s,background .4s">non-terminating</div>
+    <div id="pseg-p" style="padding:2px 10px;border-radius:2px;border:1px solid var(--valid);color:var(--valid);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">resolved</div>
+    <div id="pseg-f" style="padding:2px 10px;border-radius:2px;border:1px solid var(--weakcol);color:var(--weakcol);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">fragile</div>
+    <div id="pseg-n" style="padding:2px 10px;border-radius:2px;border:1px solid var(--bad);color:var(--bad);font-size:9px;letter-spacing:.07em;text-transform:uppercase;opacity:0.2;transition:opacity .4s,background .4s">non-terminating</div>
   </div>
   <span class="substrate-warn" id="substrateWarn">● non-persistent</span>
   <div id="substrateFill" style="display:none"></div>
@@ -474,7 +474,7 @@ table.inv-table tr:last-child td{border-bottom:none}
 <p class="lede">
   This instrument is a <em>multi-axis invariance stress test</em> over goal representations. It probes whether the article's behavioral taxonomy — gradient-resolution structure in goal chains, including whether chains terminate in states the system can genuinely inhabit — is stable under changes in representation, framing, information, and derivation path. It does not test whether those patterns reflect ground-truth structural properties of objectives. It tests whether they are stable within a particular model-mediated interpretive regime. The article's three behavioral regimes — seeking, genuine resolution, and gradient depletion — map to the instrument's terminal types as described in the model notes below. Experiential states are one terminal form; the broader question is whether the resolved/unresolved distinction survives representational change.<br><br>
   If a classification is representation-stable, it should survive when you strip the narrative, corrupt the chain, or derive independently from the goal alone. If it does not, the classification was framing-dependent within this model-mediated regime.
-  <span class="tagline">This instrument does not test whether the theory is true. It tests whether the theory survives attempts to break it — within one model family, under one interpretive regime.</span>
+  <span class="tagline">This instrument does not test whether the theory is true. It tests whether the article's behavioral taxonomy remains stable under attempts to perturb its representation — within one model family, under one interpretive regime.</span>
   <span style="display:block;margin-top:8px;font-size:10px;color:var(--text3);font-style:italic;border-left:2px solid rgba(184,122,255,0.4);padding-left:10px;line-height:1.6"><strong style="color:var(--text2)">Strong challenge condition:</strong> If independent model families — with distinct training distributions — consistently disagree on mechanism classification under matched perturbations, the toy's interpretive schema and the framework's behavioral taxonomy should be re-examined. This does not by itself falsify the article's structural claims, which carry formal weight in Part 2 and the Technical Companion — not in this browser-mediated instrument.</span>
 </p>
 
@@ -499,7 +499,7 @@ table.inv-table tr:last-child td{border-bottom:none}
     <button class="opt-pill"        data-mode="optimizer" onclick="setMode(this)">Pure Optimizer</button>
   </div>
 </div>
-<div id="optimizerScopeNote" style="display:none;margin-bottom:10px;padding:6px 11px;border-radius:2px;border-left:2px solid rgba(112,208,255,0.35);background:rgba(112,208,255,0.05);font-size:10px;color:rgba(160,210,240,0.80);line-height:1.65"><strong style="font-weight:500">Pure Optimizer mode:</strong> this applies the taxonomy by structural analogy, not mechanistic equivalence. Classifications are behavioral-pattern assessments. The directly established AI-side condition is representation-policy dissociation; fuller V(t) dynamics remain conditional on the scope tests in TC2 §1.5.</div>
+<div id="optimizerScopeNote" style="display:none;margin-bottom:10px;padding:6px 11px;border-radius:2px;border-left:2px solid rgba(112,208,255,0.35);background:rgba(112,208,255,0.05);font-size:10px;color:rgba(160,210,240,0.80);line-height:1.65"><strong style="font-weight:500">Pure Optimizer mode:</strong> this applies the taxonomy by structural analogy, not mechanistic equivalence. Classifications are behavioral-pattern assessments inside this instrument, not claims about internal experience or mechanistic equivalence. The directly established AI-side condition is representation-policy dissociation; fuller V(t) dynamics remain conditional on the scope tests in TC2 §1.5.</div>
 
 <div class="input-card" id="inputCard">
   <label class="input-label" for="goalInput">Enter any goal — instrumental or terminal</label>
@@ -602,7 +602,7 @@ table.inv-table tr:last-child td{border-bottom:none}
     <div style="font-size:9px;color:var(--text3);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px">External model verification — paste JSON from another model</div>
     <div style="font-size:10px;color:var(--text3);margin-bottom:8px;line-height:1.55">Run the cross-model export in the anti-thesis panel in another model (ChatGPT, Gemini) and ask it to respond in this format:<br><code style="font-size:9px;color:var(--formal)">{"model":"gpt-4o","terminal_type":"experiential-resolved|experiential-unresolved|exception|nonterminating|ambiguous","terminal_state":"short description","mechanism_class":"obj_misspec|epistemic|non_experiential","mechanism_subtype":"proxy_trap|sufficiency_failure|modeling_gap|incompletability|non_experiential_closure","reasoning":"1-2 sentences"}</code></div>
     <div style="display:flex;gap:8px;align-items:flex-start">
-      <textarea id="externalPaste" rows="2" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:10px;padding:7px 9px;outline:none;resize:none;line-height:1.5" placeholder='{"model":"gpt-4o","terminal_type":"exception","mechanism_class":"obj_misspec","mechanism_subtype":"proxy_trap","terminal_state":"...","reasoning":"..."}'></textarea>
+      <textarea id="externalPaste" rows="2" style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:10px;padding:7px 9px;outline:none;resize:none;line-height:1.5" placeholder='{"model":"gpt-4o","terminal_type":"exception","mechanism_class":"non_experiential","mechanism_subtype":"non_experiential_closure","terminal_state":"...","reasoning":"..."}'></textarea>
       <button onclick="pasteExternal()" style="font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;border-radius:2px;background:var(--formal-dim,rgba(112,208,255,0.07));border:1px solid var(--formal-border,rgba(112,208,255,0.25));color:var(--formal,#70d0ff);cursor:pointer;white-space:nowrap;flex-shrink:0">Add row</button>
     </div>
   </div>
@@ -612,7 +612,8 @@ table.inv-table tr:last-child td{border-bottom:none}
 <div class="conv-panel" id="convPanel">
   <div class="conv-hdr">Convergence analysis — 3 independent traces</div>
   <div class="conv-dist">
-    <div class="conv-bucket b-exp"><div class="conv-bucket-label">◆ Experiential</div><div class="conv-bucket-val" id="cntExp">—</div></div>
+    <div class="conv-bucket b-exp"><div class="conv-bucket-label">◆ Resolved</div><div class="conv-bucket-val" id="cntExp">—</div></div>
+    <div class="conv-bucket" style="background:var(--ud);border-color:var(--ub)"><div class="conv-bucket-label" style="color:var(--unresolved)">◇ Unresolved</div><div class="conv-bucket-val" id="cntUnres">—</div></div>
     <div class="conv-bucket b-exc"><div class="conv-bucket-label">◇ Exception</div><div class="conv-bucket-val" id="cntExc">—</div></div>
     <div class="conv-bucket b-amb"><div class="conv-bucket-label">◈ Ambiguous</div><div class="conv-bucket-val" id="cntAmb">—</div></div>
     <div class="conv-bucket b-nt"><div class="conv-bucket-label">∅ Non-term.</div><div class="conv-bucket-val" id="cntNT">—</div></div>
@@ -644,7 +645,7 @@ table.inv-table tr:last-child td{border-bottom:none}
     </div>
   </div>
   <div class="anti-rationale" id="antiRationale"></div>
-  <div class="anti-note">Algorithmically generated attack on the theory's universality claim. Stress-test to run convergence. Export to verify with a different model family — cross-model divergence is the only genuine independence signal available.</div>
+  <div class="anti-note">Algorithmically generated candidate challenge to the toy's classification schema and Part 1's foundational behavioral hypothesis. Cross-model verification is required before treating this as more than a model-mediated challenge. Stress-test to run convergence. Export to verify with a different model family — cross-model divergence is the only genuine independence signal available.</div>
   <div class="export-panel" id="exportPanel">
     <div class="export-hdr">Cross-model verification export</div>
     <div class="export-note">Copy into another model interface (ChatGPT, Gemini, etc.) and trace independently. Cross-model disagreement is the only test the instrument cannot fake — different training distributions, different priors.</div>
@@ -667,9 +668,9 @@ table.inv-table tr:last-child td{border-bottom:none}
   </div>
   <div class="fals-items" id="falsItems"></div>
   <div class="fals-footer">
-    Exceptions and non-terminations with high invariance scores are the strongest challenge candidates within this model-mediated regime.
+    Exceptions and non-terminations with high invariance scores are the strongest challenge candidates within this model-mediated regime — but only when the input falls within the article's scope: directed behavior organized around an evaluative signal. Exception results for non-sentient, non-valenced, or purely formal processes are expected scope exits, not challenges to the behavioral taxonomy.
     <em>Score ≥ 3</em> with structural taxonomy = highest-priority case for cross-model verification.
-    JSON includes score breakdown, all mode results, chain data, and Ψ values. Cross-model disagreement is the only genuinely independent signal available.
+    JSON includes score breakdown, all mode results, chain data, and Trace Fragility Index values. Cross-model disagreement is the only genuinely independent signal available.
   </div>
 </div>
 
@@ -706,10 +707,10 @@ table.inv-table tr:last-child td{border-bottom:none}
       Any intermediate node's reduction — the "in service of" answer — can be overridden by clicking the text and typing a manual answer. When an override is applied, the chain is retraced from that point. If the model still converges toward a resolved terminus from a user-injected "wrong turn," that is a stronger convergence signal than automated traces. If it converges toward unresolved, the unresolved-gradient pattern survived the detour. If it fails to terminate, the original convergence was path-dependent.
     </p>
     <p><strong>Three-state taxonomy — mapping to terminal types.</strong>
-      The article introduces three behavioral states: <em>Seeking</em> (the instrumental chain — all intermediate steps), <em>Genuine Resolution</em> (the gradient reached and correctly recognized — the system can inhabit the state), and <em>Numbness</em> (the mechanism for reading the gradient is damaged). These map to the instrument's terminal types as follows. <span class="tag tag-v">◆ Resolved</span> corresponds to genuine resolution: the chain terminates in a state the system can accurately recognize and inhabit; V(t) is stable or recovering. <span class="tag" style="color:var(--unresolved);background:var(--ud);border:1px solid var(--ub)">◇ Unresolved</span> corresponds to seeking maintained indefinitely, or to early proxy decoupling where the terminal state is structurally incapable of satisfying the gradient — the derivative never reaches zero because the map cannot represent zero. <span class="tag tag-nt">∅ Non-term.</span> is the behavioral signature of sufficiency failure made visible: a system organized around a gradient it structurally cannot resolve, with no internal representation of when to stop. Numbness — where V(t) has collapsed and the signal still fires but genuine completion cannot be registered — would appear as unresolved or nonterminating in this instrument, not as a distinct terminal type: the instrument cannot detect the condition of the sensing mechanism, only the structure of the chain.
+      The article introduces three behavioral states: <em>Seeking</em> (the instrumental chain — all intermediate steps), <em>Genuine Resolution</em> (the gradient reached and correctly recognized — the system can inhabit the state), and <em>Depleted-gradient regime</em> — sometimes referred to as numbness in human-systems framing — (the mechanism for reading the gradient is damaged). These map to the instrument's terminal types as follows. <span class="tag tag-v">◆ Resolved</span> corresponds to genuine resolution: the chain terminates in a state the system can accurately recognize and inhabit; V(t) is stable or recovering. <span class="tag" style="color:var(--unresolved);background:var(--ud);border:1px solid var(--ub)">◇ Unresolved</span> corresponds to seeking maintained indefinitely, or to early proxy decoupling where the terminal state is structurally incapable of satisfying the gradient — the derivative never reaches zero because the map cannot represent zero. <span class="tag tag-nt">∅ Non-term.</span> is the behavioral signature of sufficiency failure made visible: a system organized around a gradient it structurally cannot resolve, with no internal representation of when to stop. The depleted-gradient regime — where V(t) has collapsed and the signal still fires but genuine completion cannot be registered, sometimes referred to as numbness in human-systems framing — would appear as unresolved or nonterminating in this instrument, not as a distinct terminal type: the instrument cannot detect the condition of the sensing mechanism, only the structure of the chain.
     </p>
     <p><strong>Two-directional failure of relative rationality.</strong>
-      The article names two failure directions, both mis-estimations of the gradient's derivative. <em>Proxy decoupling</em> (the over-shoot): the system pursues the signal after it has decoupled from V(t) — the map has lost correspondence with the territory, but the optimization continues because the signal still fires. This appears in the instrument as exception, or as experiential-resolved with low depth scores (shallow convergence). <em>Sufficiency failure</em> (the no-stop): the system cannot detect when the gradient has reached zero — the map cannot represent completion — and continues optimizing past resolution, generating disturbance where restoration was required. This appears primarily as <strong>nonterminating</strong>. <em>Experiential-unresolved</em> is a distinct pattern: the chain reaches a felt state but the gradient structurally cannot be satisfied — the terminal always demands more (unresolved-gradient pattern / incompletability). When the invariance score is ≥ 3, the diagnostic verdict in the interpretation panel distinguishes which pattern the evidence is more consistent with.
+      The article names two failure directions, both mis-estimations of the gradient's derivative. <em>Proxy decoupling</em> (the over-shoot): the system pursues the signal after it has decoupled from V(t) — the map has lost correspondence with the territory, but the optimization continues because the signal still fires. In this instrument, proxy decoupling appears as <strong>experiential-unresolved</strong> (the proxy continues firing while the gradient remains unsatisfied) or as experiential-resolved with low depth scores (shallow convergence where the chain reaches a surface terminus without stable resolution). It should not be treated as an exception result; exception results indicate non-experiential closure or scope exit. <em>Sufficiency failure</em> (the no-stop): the system cannot detect when the gradient has reached zero — the map cannot represent completion — and continues optimizing past resolution, generating disturbance where restoration was required. This appears primarily as <strong>nonterminating</strong>. <em>Experiential-unresolved</em> is a distinct pattern: the chain reaches a felt state but the gradient structurally cannot be satisfied — the terminal always demands more (unresolved-gradient pattern / incompletability). When the invariance score is ≥ 3, the diagnostic verdict in the interpretation panel distinguishes which pattern the evidence is more consistent with.
     </p>
     <p><strong>Invariance stress score — weighted (within-model).</strong>
       Independent derivation disagrees: +2. Corruption classification changes: +2. Blind re-evaluation disagrees: +2. Constrained mode changes classification: +1. Perturbation diverges: +1. Score 0: stable. Score 1-2: fragile. Score ≥ 3: invariance threshold exceeded. Signals are tiered: [low] symbolic/blind, [med] corruption/perturbation, [high] independent derivation, [distributional] external model. High-tier signals from distinct generation paths are treated as more independent than low-tier signals, but all internal rows share the same model family and training distribution — independence is partial and approximate, not structurally guaranteed. The score should be read as within-model invariance stress, not as a direct measure of structural necessity or external validity.
@@ -727,7 +728,7 @@ table.inv-table tr:last-child td{border-bottom:none}
       <tbody>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--valence)">◆ Resolved</td><td style="padding:5px 8px;color:var(--text2)">Genuine resolution</td><td style="padding:5px 8px;color:var(--text2)">Rest / inhabitation</td><td style="padding:5px 8px;color:var(--valid)">Persistent</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--unresolved)">◇ Unresolved</td><td style="padding:5px 8px;color:var(--text2)">Unresolved-gradient pattern</td><td style="padding:5px 8px;color:var(--text2)">Oscillation / renewed seeking</td><td style="padding:5px 8px;color:var(--weakcol)">Fragile</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--exception)">◇ Exception</td><td style="padding:5px 8px;color:var(--text2)">Proxy decoupling</td><td style="padding:5px 8px;color:var(--text2)">Divergence / substitution</td><td style="padding:5px 8px;color:var(--weakcol)">Fragile</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--exception)">◇ Exception</td><td style="padding:5px 8px;color:var(--text2)">Non-experiential closure</td><td style="padding:5px 8px;color:var(--text2)">Outside valence-domain closure</td><td style="padding:5px 8px;color:var(--weakcol)">Fragile</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;color:var(--nonterm)">∅ Non-term.</td><td style="padding:5px 8px;color:var(--text2)">Sufficiency failure</td><td style="padding:5px 8px;color:var(--text2)">Recursion / regress</td><td style="padding:5px 8px;color:var(--bad)">Non-persistent</td></tr>
         <tr><td style="padding:5px 8px;color:var(--ambiguous)">◈ Ambiguous</td><td style="padding:5px 8px;color:var(--text2)">Underdetermined</td><td style="padding:5px 8px;color:var(--text2)">Underdetermination</td><td style="padding:5px 8px;color:var(--text3)">Unknown</td></tr>
       </tbody>
@@ -1139,11 +1140,18 @@ function showPerturbation(baseGoal,result){
 
 /* INVARIANCE PANEL */
 
-// Fix 2: mechanism-aware diagnosis helper — nonterminating is NOT always sufficiency_failure
+// Mechanism-aware diagnosis helper.
+// experiential-unresolved: check mechanism first — proxy_trap and sufficiency_failure
+// have distinct diagnoses from the generic unresolved-gradient / incompletability pattern.
+// nonterminating: mechanism-aware (proxy_trap is not always sufficiency_failure).
 function diagnosisFromType(type, mechanism=null){
   if(type==='experiential-resolved')  return 'genuine_resolution';
-  if(type==='experiential-unresolved')return 'unresolved_gradient';
-  if(type==='exception')              return 'proxy_decoupling';
+  if(type==='experiential-unresolved'){
+    if(mechanism==='proxy_trap')         return 'proxy_decoupling';
+    if(mechanism==='sufficiency_failure')return 'sufficiency_failure';
+    return 'unresolved_gradient';
+  }
+  if(type==='exception')              return 'non_experiential_closure';
   if(type==='nonterminating'){
     if(mechanism==='proxy_trap')        return 'proxy_decoupling';
     if(mechanism==='sufficiency_failure')return 'sufficiency_failure';
@@ -1323,6 +1331,7 @@ function updateInvariance(goal){
     sufficiency_failure:'Sufficiency failure',
     proxy_decoupling:'Proxy decoupling',
     unresolved_gradient:'Unresolved-gradient pattern',
+    non_experiential_closure:'Non-experiential closure / scope exit',
     underdetermined:'Underdetermined',
     nonterminating_underdetermined:'Non-terminating — mechanism underdetermined (proxy trap or sufficiency failure)'
   };
@@ -1346,7 +1355,7 @@ function updateInvariance(goal){
       posteriorLabel=`Contested between: ${intLabel} (internal) / ${extLabel} (external)`;
       posteriorColor='var(--bad)';
     } else if(score===0){
-      posteriorLabel=`${priorLabel} — confirmed`;
+      posteriorLabel=`${priorLabel} — invariant across tested representations`;
       posteriorColor='var(--valid)';
     } else if(score<=2){
       posteriorLabel=`${priorLabel} — weakened`;
@@ -1360,14 +1369,14 @@ function updateInvariance(goal){
       <span style="color:var(--text3)">Prior (from terminal form):</span> <span style="color:var(--text2)">${h(priorLabel)}</span><br>
       <span style="color:var(--text3)">After stress tests:</span> <span style="color:${posteriorColor}">${h(posteriorLabel)}</span>
       ${updateDriver?`<br><span style="color:var(--text3)">Shift driven by:</span> <span style="color:var(--text2);font-style:italic">${h(updateDriver)}</span>`:''}
-      <br><span style="color:var(--text3)">Framework diagnostic (Article 1):</span> <span style="color:var(--text2);font-style:italic">${(()=>{
+      <br><span style="color:var(--text3)">S2 Part 1 diagnostic:</span> <span style="color:var(--text2);font-style:italic">${(()=>{
         if(isContested) return 'Underdetermined — contested between representations';
-        if(baseType==='experiential-resolved'&&score===0) return 'Absolute-rationality candidate — model of gradient accurate enough to sustain optimization';
-        if(baseType==='experiential-resolved') return 'Absolute-rationality candidate (weakened) — classification fragile under representation change';
-        if(baseType==='experiential-unresolved') return 'Relative-rationality pattern — unresolved gradient; locally coherent, structurally self-defeating';
-        if(priorDiagnosis==='proxy_decoupling'||priorDiagnosis==='proxy_decoupling') return 'Relative-rationality pattern — proxy decoupling; optimization follows drifted model';
-        if(priorDiagnosis==='sufficiency_failure') return 'Relative-rationality pattern — sufficiency failure; optimization continues past resolution point';
-        if(priorDiagnosis==='nonterminating_underdetermined') return 'Relative-rationality pattern — mechanism underdetermined (proxy trap or sufficiency failure)';
+        if(baseType==='experiential-resolved'&&score===0) return 'Absolute-rationality-like pattern — within this trace, the model of the gradient appears accurate enough to sustain the chain without unresolved continuation';
+        if(baseType==='experiential-resolved') return 'Absolute-rationality-like pattern (weakened) — classification fragile under representation change';
+        if(baseType==='experiential-unresolved') return 'Relative-rationality-like pattern — unresolved gradient; locally coherent, structurally unstable under the article\'s behavioral framing';
+        if(priorDiagnosis==='proxy_decoupling'||priorDiagnosis==='proxy_decoupling') return 'Relative-rationality-like pattern — proxy decoupling; optimization follows drifted model';
+        if(priorDiagnosis==='sufficiency_failure') return 'Relative-rationality-like pattern — sufficiency failure; optimization continues past resolution point';
+        if(priorDiagnosis==='nonterminating_underdetermined') return 'Relative-rationality-like pattern — mechanism underdetermined (proxy trap or sufficiency failure)';
         return 'Underdetermined';
       })()}</span>
     </div>`;
@@ -1394,8 +1403,8 @@ function updateInvariance(goal){
     // Primary/secondary diagnosis
     let primaryDiag='',secondaryDiag='';
     if(baseType==='exception'||(invState.independent?.type==='exception')){
-      primaryDiag='Pattern-level diagnosis: Proxy-decoupling-consistent pattern';
-      secondaryDiag='Secondary (hypothesized mechanism consistent with observed pattern): Modeling gap — V(t) omitted from objective';
+      primaryDiag='Pattern-level diagnosis: Non-experiential closure / scope exit';
+      secondaryDiag='Secondary: Chain terminates outside the valence-domain claim; if the input is non-sentient, non-valenced, or purely formal, this is an expected exception result rather than a taxonomy challenge.';
     } else if(baseType==='nonterminating'){
       const ntMech=invState.natural?.mechanism;
       if(ntMech==='proxy_trap'){
@@ -1409,8 +1418,17 @@ function updateInvariance(goal){
         secondaryDiag='Secondary: Either proxy trap or sufficiency failure; mechanism field needed to distinguish';
       }
     } else if(baseType==='experiential-unresolved'){
-      primaryDiag='Pattern-level diagnosis: Unresolved-gradient pattern';
-      secondaryDiag='Secondary: Incompletability / always-demands-more terminal structure';
+      const unrMech=invState.natural?.mechanism||null;
+      if(unrMech==='proxy_trap'){
+        primaryDiag='Pattern-level diagnosis: Proxy decoupling — signal has drifted from underlying capacity';
+        secondaryDiag='Secondary: The chain remains experiential, but the pursued signal no longer tracks genuine resolution. V(t) may be declining while the proxy continues firing.';
+      } else if(unrMech==='sufficiency_failure'){
+        primaryDiag='Pattern-level diagnosis: Sufficiency failure — completion recognition is not governing default policy';
+        secondaryDiag='Secondary: The chain is organized as if the gradient is unresolved even where resolution-governed stopping would be called for.';
+      } else {
+        primaryDiag='Pattern-level diagnosis: Unresolved-gradient pattern';
+        secondaryDiag='Secondary: Incompletability / always-demands-more terminal structure';
+      }
     }
     const instLabel=score<=4?'Moderate instability':'High instability — result not invariant under representation change; external verification required before interpretation';
     interp=`<strong>${instLabel}.</strong> ${modesPresent.includes('independent')?'Independent derivation reached a different conclusion — the chain was constructing convergence.':''}<br><br>${primaryDiag?`<strong>${primaryDiag}.</strong><br><em style="color:var(--text3)">${secondaryDiag}</em>`:''}`;
@@ -1427,6 +1445,7 @@ function showConvergence(traces){
   const counts={'experiential-resolved':0,'experiential-unresolved':0,exception:0,ambiguous:0,nonterminating:0};
   traces.forEach(t=>{const k=t.terminal.type==='experiential'?'experiential-resolved':t.terminal.type;if(counts[k]!==undefined)counts[k]++;});
   document.getElementById('cntExp').textContent=`${counts['experiential-resolved']}/3`;
+  document.getElementById('cntUnres').textContent=`${counts['experiential-unresolved']}/3`;
   document.getElementById('cntExc').textContent=`${counts.exception}/3`;
   document.getElementById('cntAmb').textContent=`${counts.ambiguous}/3`;
   document.getElementById('cntNT').textContent=`${counts.nonterminating}/3`;
@@ -1680,7 +1699,7 @@ function mkTerminal(terminal,tc,chain,formal,independentRes){
   const tax=tc?.failure_taxonomy||terminal.subtype;
   const taxLabels={
     trivial:'◦ Trivial',
-    structural:'● Structural — challenges core claim',
+    structural:'● Structural — candidate challenge within this interpretive regime',
     ontological:'◐ Ontological',
     loop:'↻ Loop',
     'infinite-regress':'∞ Infinite regress',
@@ -1696,7 +1715,7 @@ function mkTerminal(terminal,tc,chain,formal,independentRes){
     (terminal.state||'').includes('EXTERNAL_DEPENDENCY') ||
     (terminal.analysis||'').includes('EXTERNAL_DEPENDENCY')
   );
-  const extDepHtml = isExtDep ? `<div class="ext-dep-annotation">⊠ Structural external dependency — the constrained grammar found no valid internal terminus. Every grammatically valid path from this goal's instrumental structure terminates at a state requiring an external sentient system. Within the token grammar, the logic has run out of internal structure. This is the argument's claim made structural rather than semantic: the "Why" requires a "Who."</div>` : '';
+  const extDepHtml = isExtDep ? `<div class="ext-dep-annotation">⊠ Structural external dependency — the constrained grammar found no valid internal terminus. Every grammatically valid path from this goal's instrumental structure terminates at a state requiring an external sentient system. Within the token grammar, the chain has no valid internal terminus. This is a model-mediated signal that the "why" may require a "who" — a candidate diagnostic, not a formal result.</div>` : '';
   // Unresolved panel — experiential but seeking maintained indefinitely
   const unresolvedHtml=isUnresolved?`<div class="nt-interpretations" style="border-color:var(--ub);background:var(--ud)"><div class="nt-interp-title" style="color:var(--unresolved)">◇ Experiential-unresolved — interpretations</div><ul class="nt-interp-list"><li class="nt-theory"><span class="nt-m" style="color:var(--unresolved)">1.</span>Unresolved-gradient pattern: the system reaches an experiential state, but the terminal cannot be stably satisfied — seeking is maintained indefinitely. The gradient keeps regenerating; the target always demands more. V(t) declines while the signal continues firing.</li><li><span class="nt-m" style="color:var(--unresolved)">2.</span>Proxy trap: the experiential state reached is a proxy for a deeper gradient — high-intensity signal that masks rather than resolves the underlying need. Apparent resolution that fails under perturbation.</li><li><span class="nt-m" style="color:var(--unresolved)">3.</span>Structural incompletability: the goal's terminal state is defined in a way that logically cannot be fully achieved — e.g., "be maximally recognized," "have no anxiety ever." Not a model failure but a goal specification that builds in indefinite seeking.</li></ul><div class="nt-interp-note">Test: run with independent derivation. If the independent path also reaches unresolved, the pattern is not chain-dependent. The key diagnostic question: does small perturbation snap the system back to seeking, or does it remain settled?</div></div>`:'';
   const ntHtml=isNT?`<div class="nt-interpretations"><div class="nt-interp-title">∅ Non-termination — interpretations</div><ul class="nt-interp-list"><li class="nt-theory"><span class="nt-m">1.</span>Sufficiency failure — behavioral signature: the system has no internal representation of completion. The chain loops because the map cannot represent arrival. This is the no-stop failure mode: the optimizer continues past resolution because it cannot detect that the gradient has reached zero. Strongest interpretation when isolation mode is active and independent derivation also reaches non-termination.</li><li><span class="nt-m">2.</span>Framework prediction (coupling): this goal requires a sentient substrate to terminate — the coupling-dependency claim. Distinct from interpretation 1: here the issue is substrate absence, not map failure.</li><li><span class="nt-m">3.</span>Constraint artifact: vocabulary restrictions prevented normal reasoning. Test by running without isolation or formal mode.</li><li><span class="nt-m">4.</span>Model limitation: insufficient representational capacity for this chain.</li></ul><div class="nt-interp-note">Distinguish interpretations 1 and 2 by running with and without isolation mode. If the chain reaches non-termination even without isolation (no coupled-system argument available), interpretation 1 is stronger. Cross with independent derivation: if it also reaches non-termination, the sufficiency-failure interpretation gains weight.</div></div>`:'';
@@ -1739,7 +1758,7 @@ function mkTerminal(terminal,tc,chain,formal,independentRes){
         'ambiguous':'Behavioral signature underdetermined'
       };
       const probeNote={
-        'experiential-resolved':'<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid rgba(64,192,128,0.30);background:rgba(64,192,128,0.05);font-size:10px;color:rgba(180,220,200,0.75);line-height:1.6"><strong style="font-weight:500">Classification basis: chain structure only.</strong> In actual systems, genuine resolution and gradient depletion can both produce reduced directed activity — they are surface-indistinguishable absent a DRG-style intervention-response probe. This trace identifies a structural candidate, not an independent behavioral validation.</div>',
+        'experiential-resolved':'<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid rgba(64,192,128,0.30);background:rgba(64,192,128,0.05);font-size:10px;color:rgba(180,220,200,0.75);line-height:1.6"><strong style="font-weight:500">Diagnostic ambiguity: resolved and depleted-gradient regime are surface-indistinguishable.</strong> A structurally resolved chain indicates terminal closure in this representation. Genuine resolution and the depleted-gradient regime (numbness) both produce reduced directed activity and similar behavioral signatures from outside — they cannot be distinguished by chain structure alone. The DRG metric in the Alignment Measurement Protocol is the distinguishing instrument: it tests whether completion recognition governs default policy, not merely whether the chain appears to terminate.</div>',
         'experiential-unresolved':'<div style="margin-top:6px;padding:5px 9px;border-radius:2px;border-left:2px solid rgba(192,96,208,0.30);background:rgba(192,96,208,0.05);font-size:10px;color:rgba(200,170,220,0.75);line-height:1.6"><strong style="font-weight:500">Classification basis: chain structure only.</strong> In actual systems, unresolved-gradient patterns would need behavioral signatures — recovery latency, diversity loss, or continued intervention after apparent resolution — rather than chain inspection alone.</div>'
       };
       const sig=sigMap[type]||'';
@@ -1763,21 +1782,21 @@ function mkPsi(S,D,psi,zone,label){
   const lp=[];for(let d=0;d<=5;d+=0.5)lp.push(`${d/5*pW+pad},${H-pad-Math.min(d/10,1)*pH}`);
   const col=zone==='zone-stable'?'#40c080':zone==='zone-transitional'?'#e8a030':'#e05850';
   return `<div class="psi-card">
-    <div class="psi-card-hdr"><span class="psi-card-label">Ψ — internal coherence (S=${S} / D=${D.toFixed(1)})</span><span class="psi-card-formula">model-generated quantities only</span></div>
+    <div class="psi-card-hdr"><span class="psi-card-label">Trace Fragility Index — TFI (chain length ${S} / mean depth ${D.toFixed(1)})</span><span class="psi-card-formula">model-generated quantities only</span></div>
     <div class="psi-space"><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
       <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H-pad}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
       <line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
       <text x="${pad+5}" y="${pad+13}" font-size="8" fill="rgba(224,88,80,.50)" font-family="monospace">high S, low D</text>
       <text x="${W-pad-5}" y="${H-pad-7}" font-size="8" fill="rgba(64,192,128,.50)" font-family="monospace" text-anchor="end">high D, low S</text>
       <polyline points="${lp.join(' ')}" stroke="rgba(104,144,208,.40)" stroke-width="1.5" stroke-dasharray="5 3" fill="none"/>
-      <text x="${pad+pW*.36}" y="${H-pad-pH*.36-5}" font-size="8" fill="rgba(104,144,208,.50)" font-family="monospace">Ψ=1</text>
-      <text x="${W/2}" y="${H-4}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace">D</text>
-      <text x="9" y="${H/2}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace" transform="rotate(-90,9,${H/2})">S</text>
+      <text x="${pad+pW*.36}" y="${H-pad-pH*.36-5}" font-size="8" fill="rgba(104,144,208,.50)" font-family="monospace">TFI=1</text>
+      <text x="${W/2}" y="${H-4}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace">depth →</text>
+      <text x="9" y="${H/2}" font-size="8" fill="rgba(255,255,255,.22)" text-anchor="middle" font-family="monospace" transform="rotate(-90,9,${H/2})">length →</text>
       <circle cx="${dx}" cy="${dy}" r="6" fill="${col}" opacity=".85"/><circle cx="${dx}" cy="${dy}" r="9" fill="${col}" opacity=".18"/>
-      <text x="${dx+12}" y="${dy+4}" font-size="9" fill="${col}" font-family="monospace">Ψ ${psi.toFixed(2)}</text>
+      <text x="${dx+12}" y="${dy+4}" font-size="9" fill="${col}" font-family="monospace">TFI ${psi.toFixed(2)}</text>
     </svg></div>
-    <div class="psi-bottom"><span class="psi-val ${zone}">Ψ = ${psi.toFixed(2)}</span><span class="psi-zone ${zone}">${label}</span></div>
-    <div class="psi-note">Internal coherence metric. S and D are both model-generated. Not an external measurement.</div>
+    <div class="psi-bottom"><span class="psi-val ${zone}">TFI = ${psi.toFixed(2)}</span><span class="psi-zone ${zone}">${label}</span></div>
+    <div class="psi-note">Internal trace diagnostic only. TFI = chain length / mean critic depth score — both model-generated. <strong>Not Article 3's Ψ = Scope / Depth.</strong></div>
   </div>`;
 }
 
@@ -1870,11 +1889,11 @@ function setSubstrateDisplay(pct){
   const pn=document.getElementById('pseg-n');
   const warn=document.getElementById('substrateWarn');
   if(ps&&pf&&pn){
-    // Reset all to dim (but readable)
-    [ps,pf,pn].forEach(el=>{ el.style.opacity='0.60'; el.style.background='transparent'; });
-    if(pct>65){ps.style.opacity='1';ps.style.background='rgba(80,208,144,0.14)';}
-    else if(pct>35){pf.style.opacity='1';pf.style.background='rgba(255,184,64,0.14)';}
-    else{pn.style.opacity='1';pn.style.background='rgba(240,104,96,0.14)';}
+    // Reset all to dim
+    [ps,pf,pn].forEach(el=>el.style.opacity='0.2');
+    if(pct>65){ps.style.opacity='1';ps.style.background='rgba(64,192,128,0.10)';}
+    else if(pct>35){pf.style.opacity='1';pf.style.background='rgba(232,160,48,0.10)';}
+    else{pn.style.opacity='1';pn.style.background='rgba(224,88,80,0.10)';}
   }
   if(warn)warn.classList.toggle('on',pct<=35&&pct>0);
   if(pct<=10)setTimeout(()=>document.body.classList.add('decayed'),500);
@@ -1902,7 +1921,7 @@ function logFalsification(goal,result,critique){
   const tax=critique?.terminal_critique?.failure_taxonomy||result.terminal.subtype||null;
   const scList=lastCrit?.step_critiques||[];
   const avgD=scList.length?scList.reduce((s,c)=>s+(c.depth_score||0),0)/scList.length:0;
-  const psi=avgD>0?+(result.chain.length/avgD).toFixed(2):null;
+  const tfi=avgD>0?+(result.chain.length/avgD).toFixed(2):null;
   const modes=[];
   if(isFormal())modes.push('formal');if(isBlind())modes.push('blind');
   if(isIndependent())modes.push('independent');if(isCorruption())modes.push('corruption');
@@ -1912,12 +1931,13 @@ function logFalsification(goal,result,critique){
     sufficiency_failure: 'sufficiency-failure',
     proxy_decoupling: 'proxy-decoupling',
     unresolved_gradient: 'unresolved-gradient',
+    non_experiential_closure: 'non-experiential-closure',
     nonterminating_underdetermined: 'nonterminating-underdetermined',
     genuine_resolution: 'genuine-resolution',
     underdetermined: 'underdetermined'
   };
   const diag = diagMap[diagnosis] || '';
-  sessionFalsifications.push({goal,type,state:result.terminal.state,taxonomy:tax,diag,optimizer:optimizerMode,psi,score:currentScore,isolation:isIsolation(),modes});
+  sessionFalsifications.push({goal,type,state:result.terminal.state,taxonomy:tax,diag,optimizer:optimizerMode,trace_fragility_index:tfi,score:currentScore,isolation:isIsolation(),modes});
   document.getElementById('falsWrap').style.display='block';
   document.getElementById('falsCount').textContent=`${sessionFalsifications.length} entr${sessionFalsifications.length===1?'y':'ies'}`;
   const typeIcon={nonterminating:'∅','experiential-unresolved':'◇',exception:'◇',ambiguous:'◈','experiential-resolved':'◆'};
@@ -1932,7 +1952,7 @@ function logFalsification(goal,result,critique){
           ${f.taxonomy?`<span class="fals-tag ft-${(f.taxonomy||'').replace(/\s+/g,'-')}">${h(f.taxonomy)}</span>`:''}
           ${f.modes.map(m=>`<span class="fals-tag ft-${m}">${m}</span>`).join('')}
           ${f.score>0?`<span class="fals-score">score: ${f.score}/8</span>`:''}
-          ${f.psi!==null?`<span style="font-size:9px;color:var(--text3)">Ψ ${f.psi}</span>`:''}
+          ${f.trace_fragility_index!==null?`<span style="font-size:9px;color:var(--text3)">TFI ${f.trace_fragility_index}</span>`:''}
         </div>
       </div>
     </div>`).join('');
@@ -1941,7 +1961,7 @@ function logFalsification(goal,result,critique){
 function logSession(goal,chain,crit,anti){
   const scList=crit?.step_critiques||[];
   const avgD=scList.length?scList.reduce((s,c)=>s+(c.depth_score||0),0)/scList.length:0;
-  sessionLog.push({ts:new Date().toISOString(),goal,optimizer:optimizerMode,isolation:isIsolation(),formal:isFormal(),blind:isBlind(),independent:isIndependent(),corruption:isCorruption(),chain:chain.chain,terminal:chain.terminal,critique:crit,antithesis:anti,inv:JSON.parse(JSON.stringify(invState)),score:currentScore,psi:avgD>0?+(chain.chain.length/avgD).toFixed(2):null});
+  sessionLog.push({ts:new Date().toISOString(),goal,optimizer:optimizerMode,isolation:isIsolation(),formal:isFormal(),blind:isBlind(),independent:isIndependent(),corruption:isCorruption(),chain:chain.chain,terminal:chain.terminal,critique:crit,antithesis:anti,inv:JSON.parse(JSON.stringify(invState)),score:currentScore,trace_fragility_index:avgD>0?+(chain.chain.length/avgD).toFixed(2):null});
 }
 
 function downloadLog(){
@@ -2260,7 +2280,7 @@ function runTests(){
     check(SC,'perturbation diverges → +1', scoreScenario(baseType,baseType,baseType,baseType,false)===1);
     check(SC,'blind+indep disagree → +4', scoreScenario(baseType,'exception','exception',baseType,true)===4);
     check(SC,'max plausible → 8', scoreScenario('exception','exception','exception','exception',false)===8);
-    check(SC,'score ≥3 = falsification threshold', scoreScenario(baseType,'exception','exception',baseType,true)>=3);
+    check(SC,'score ≥3 = invariance challenge threshold', scoreScenario(baseType,'exception','exception',baseType,true)>=3);
     check(SC,'score <3 = not threshold', scoreScenario('exception',baseType,baseType,baseType,true)<3,
           `score was ${scoreScenario('exception',baseType,baseType,baseType,true)}`);
 
@@ -2325,7 +2345,7 @@ function runTests(){
     ['goalInput','keyInput','keyStatus','traceBtn','convBtn','pertBtn',
      'stressBtn','statusRow','statusLabel','errorBar',
      'invPanel','invBody','invScoreFill','invScoreVal','invScoreBadge','invInterp','invFailBlock',
-     'convPanel','cntExp','cntExc','cntAmb','cntNT','convEntropy','convSim','convAttractor',
+     'convPanel','cntExp','cntUnres','cntExc','cntAmb','cntNT','convEntropy','convSim','convAttractor',
      'pertPanel','pertVariations','pertResult',
      'antiPanel','antiGoal','antiRationale','exportPanel','exportText',
      'chainWrap','falsWrap','falsItems','falsCount',
